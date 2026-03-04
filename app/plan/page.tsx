@@ -1,42 +1,16 @@
 "use client";
 
 import { MODULES } from "@/lib/modules";
-import {
-  getStoredProgress,
-  getUpdatesAnswer,
-  getSuspiciousAnswer,
-  countCompletedModules,
-  type ModuleForCount,
-  type ModuleProgress,
-} from "@/lib/progress";
+import { countCompletedModules } from "@/lib/progress";
+import { useProgressData } from "@/hooks/useProgressData";
 import { Check } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
 
 export default function PlanPage() {
-  const [progress, setProgress] = useState<ModuleProgress>({});
-  const [updatesAnswered, setUpdatesAnswered] = useState<"yes" | "no" | null>(null);
-  const [suspiciousAnswered, setSuspiciousAnswered] = useState<string | null>(null);
-
-  const refresh = useCallback(() => {
-    setProgress(getStoredProgress());
-    setUpdatesAnswered(getUpdatesAnswer());
-    setSuspiciousAnswered(getSuspiciousAnswer());
-  }, []);
-
-  useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const modulesForCount: ModuleForCount[] = MODULES.map((m) => ({
-    slug: m.slug,
-    steps: m.steps,
-    afterCheckQuestion: m.afterCheckQuestion,
-    hasInteractiveMessage: m.hasInteractiveMessage,
-  }));
+  const { progress, updatesAnswered, suspiciousAnswered } = useProgressData();
 
   const completed = countCompletedModules(
     progress,
-    modulesForCount,
+    MODULES,
     !!updatesAnswered,
     !!suspiciousAnswered
   );
@@ -49,7 +23,7 @@ export default function PlanPage() {
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-2 text-3xl font-bold text-amber-950">My Plan</h1>
       <p className="mb-6 text-lg text-amber-800">
-        Your printable checklist. Completion is saved in this browser.
+        Your printable checklist. Completion is saved in the database.
       </p>
 
       <div className="mb-6 no-print">

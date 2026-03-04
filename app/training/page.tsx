@@ -1,45 +1,19 @@
 "use client";
 
 import { MODULES } from "@/lib/modules";
-import {
-  getStoredProgress,
-  getUpdatesAnswer,
-  getSuspiciousAnswer,
-  countCompletedModules,
-  type ModuleForCount,
-  type ModuleProgress,
-} from "@/lib/progress";
+import { countCompletedModules } from "@/lib/progress";
+import { useProgressData } from "@/hooks/useProgressData";
 import { Lock, Fingerprint, Smartphone, Download, Search, MessageSquare } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 const ICONS = [Lock, Fingerprint, Smartphone, Download, Search, MessageSquare];
 
-function useProgress() {
-  const [progress, setProgress] = useState<ModuleProgress>({});
-  const [updatesAnswered, setUpdatesAnswered] = useState<"yes" | "no" | null>(null);
-  const [suspiciousAnswered, setSuspiciousAnswered] = useState<string | null>(null);
-  useEffect(() => {
-    setProgress(getStoredProgress());
-    setUpdatesAnswered(getUpdatesAnswer());
-    setSuspiciousAnswered(getSuspiciousAnswer());
-  }, []);
-  return { progress, updatesAnswered, suspiciousAnswered };
-}
-
 export default function TrainingPage() {
-  const { progress, updatesAnswered, suspiciousAnswered } = useProgress();
-
-  const modulesForCount: ModuleForCount[] = MODULES.map((m) => ({
-    slug: m.slug,
-    steps: m.steps,
-    afterCheckQuestion: m.afterCheckQuestion,
-    hasInteractiveMessage: m.hasInteractiveMessage,
-  }));
+  const { progress, updatesAnswered, suspiciousAnswered } = useProgressData();
 
   const completed = countCompletedModules(
     progress,
-    modulesForCount,
+    MODULES,
     !!updatesAnswered,
     !!suspiciousAnswered
   );

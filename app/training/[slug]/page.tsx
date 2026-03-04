@@ -1,6 +1,6 @@
 "use client";
 
-import { getModuleBySlug, MODULES } from "@/lib/modules";
+import { getModuleBySlug } from "@/lib/modules";
 import {
   getStoredProgress,
   setStepComplete,
@@ -14,7 +14,7 @@ import {
 import { SettingsHelp } from "@/components/SettingsHelp";
 import { ArrowLeft, Check, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 const MESSAGE_A = {
@@ -34,11 +34,8 @@ const SUSPICIOUS_OPTIONS = [
   "Neither is suspicious",
 ] as const;
 
-const CORRECT_ANSWER = "A is suspicious";
-
 export default function ModulePage() {
   const params = useParams();
-  const router = useRouter();
   const slug = params.slug as string;
   const moduleData = getModuleBySlug(slug);
 
@@ -49,69 +46,71 @@ export default function ModulePage() {
   const [markedComplete, setMarkedComplete] = useState(false);
 
   useEffect(() => {
-    const all = getStoredProgress();
-    setProgress(all[slug] ?? {});
-    if (slug === "updates") setUpdatesAnswerState(getUpdatesAnswer());
-    if (slug === "suspicious-messages") {
-      setSuspiciousChoice(getSuspiciousAnswer());
-      setSuspiciousSubmitted(!!getSuspiciousAnswer());
-    }
-    const mod = getModuleBySlug(slug);
-    if (mod) {
-      let complete = false;
-      if (mod.hasInteractiveMessage) complete = !!getSuspiciousAnswer();
-      else if (mod.afterCheckQuestion) complete = !!getUpdatesAnswer();
-      else if (mod.steps.length > 0) {
-        const steps = all[slug] ?? {};
-        complete = mod.steps.every((s) => steps[s.id]);
+    let cancelled = false;
+    async function load() {
+      const [all, updatesAns, suspiciousAns] = await Promise.all([
+        getStoredProgress(),
+        slug === "updates" ? getUpdatesAnswer() : null,
+        slug === "suspicious-messages" ? getSuspiciousAnswer() : null,
+      ]);
+      if (cancelled) return;
+      setProgress(all[slug] ?? {});
+      if (slug === "updates") setUpdatesAnswerState(updatesAns);
+      if (slug === "suspicious-messages") {
+        setSuspiciousChoice(suspiciousAns);
+        setSuspiciousSubmitted(!!suspiciousAns);
       }
-      setMarkedComplete(complete);
+      const mod = getModuleBySlug(slug);
+      if (mod) {
+        const complete = mod.hasInteractiveMessage
+          ? !!suspiciousAns
+          : mod.afterCheckQuestion
+            ? !!updatesAns
+            : mod.steps.every((s) => (all[slug] ?? {})[s.id]);
+        setMarkedComplete(complete);
+      }
     }
+    void load();
+    return () => { cancelled = true; };
   }, [slug]);
 
   const toggleStep = useCallback(
     (stepId: string) => {
       const next = !progress[stepId];
-      setStepComplete(slug, stepId, next);
+      void setStepComplete(slug, stepId, next);
       setProgress((p) => ({ ...p, [stepId]: next }));
     },
     [slug, progress]
   );
 
   const handleUpdatesAnswer = useCallback((answer: "yes" | "no") => {
-    setUpdatesAnswer(answer);
+    void setUpdatesAnswer(answer);
     setUpdatesAnswerState(answer);
   }, []);
 
   const handleSuspiciousSubmit = useCallback((choice: string) => {
-    setSuspiciousAnswer(choice);
+    void setSuspiciousAnswer(choice);
     setSuspiciousChoice(choice);
     setSuspiciousSubmitted(true);
   }, []);
 
   const handleMarkComplete = useCallback(
-    (complete: boolean) => {
+    async (complete: boolean) => {
       if (!moduleData) return;
-      const moduleForComplete = {
-        slug: moduleData.slug,
-        steps: moduleData.steps,
-        afterCheckQuestion: moduleData.afterCheckQuestion,
-        hasInteractiveMessage: moduleData.hasInteractiveMessage,
-      };
       if (complete) {
-        markModuleComplete(moduleForComplete);
+        await markModuleComplete(moduleData);
         if (moduleData.steps.length > 0) {
           const allSteps: Record<string, boolean> = {};
           moduleData.steps.forEach((s) => { allSteps[s.id] = true; });
           setProgress(allSteps);
         }
         if (moduleData.slug === "updates") setUpdatesAnswerState("yes");
-        if (moduleData.slug === "suspicious-messages" && !getSuspiciousAnswer()) {
-          setSuspiciousAnswer("A is suspicious");
+        if (moduleData.slug === "suspicious-messages") {
+          setSuspiciousChoice("A is suspicious");
           setSuspiciousSubmitted(true);
         }
       } else {
-        unmarkModuleComplete(moduleForComplete);
+        await unmarkModuleComplete(moduleData);
         if (moduleData.steps.length > 0) setProgress({});
         if (moduleData.slug === "updates") setUpdatesAnswerState(null);
         if (moduleData.slug === "suspicious-messages") {

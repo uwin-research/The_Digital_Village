@@ -7,7 +7,7 @@ import {
   getQuizPostScores,
   setQuizPostScores,
 } from "@/lib/progress";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 type Phase = "pre" | "post" | "pre-done" | "post-done";
 
@@ -19,18 +19,15 @@ export default function QuizPage() {
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<number[]>([]);
 
-  const loadStored = useCallback(() => {
-    setPreScoresState(getQuizPreScores());
-    setPostScoresState(getQuizPostScores());
-  }, []);
-
   useEffect(() => {
-    loadStored();
-  }, [loadStored]);
+    Promise.all([getQuizPreScores(), getQuizPostScores()]).then(([pre, post]) => {
+      setPreScoresState(pre);
+      setPostScoresState(post);
+    });
+  }, []);
 
   const isPre = phase === "pre" || phase === "pre-done";
   const questions = QUIZ_QUESTIONS;
-  const currentScores = isPre ? preScores : postScores;
   const setCurrentScores = isPre ? setQuizPreScores : setQuizPostScores;
   const setCurrentScoresState = isPre ? setPreScoresState : setPostScoresState;
 
@@ -43,7 +40,7 @@ export default function QuizPage() {
     setAnswers(nextAnswers);
     setSelected(null);
     if (isLast) {
-      setCurrentScores(nextAnswers);
+      void setCurrentScores(nextAnswers);
       setCurrentScoresState(nextAnswers);
       setPhase(isPre ? "pre-done" : "post-done");
       setCurrentIndex(0);

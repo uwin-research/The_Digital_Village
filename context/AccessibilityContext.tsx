@@ -2,7 +2,6 @@
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
 
-const STORAGE_KEY = "golden-shield-a11y";
 const TEXT_SIZE_KEY = "golden-shield-text-size";
 const HIGH_CONTRAST_KEY = "golden-shield-high-contrast";
 
@@ -37,11 +36,7 @@ interface AccessibilityContextValue extends A11yState {
 const AccessibilityContext = createContext<AccessibilityContextValue | null>(null);
 
 export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<A11yState>(defaultState);
-
-  useEffect(() => {
-    setState(loadState());
-  }, []);
+  const [state, setState] = useState<A11yState>(() => loadState());
 
   useEffect(() => {
     document.documentElement.dataset.textSize = state.textSize;

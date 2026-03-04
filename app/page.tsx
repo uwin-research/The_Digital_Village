@@ -32,7 +32,7 @@ export default function HomePage() {
 
       <section aria-labelledby="promise-heading" className="mb-12">
         <h2 id="promise-heading" className="mb-6 text-2xl font-bold text-amber-950">
-          What you'll learn
+          What you&apos;ll learn
         </h2>
         <ul className="space-y-3">
           {PROMISE_ITEMS.map((item, i) => (

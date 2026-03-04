@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { getStoredAuth, setStoredAuth, clearStoredAuth, isValidEmail } from "@/lib/auth";
+import { getAuth, setAuth, clearAuth, isValidEmail } from "@/lib/api";
 
 type AuthState = { email: string } | null;
 
@@ -19,8 +19,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setUser(getStoredAuth());
-    setIsReady(true);
+    getAuth().then(({ user: u }) => {
+      setUser(u);
+      setIsReady(true);
+    });
   }, []);
 
   const signIn = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
@@ -28,14 +30,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!trimmed) return { error: "Please enter your email." };
     if (!isValidEmail(trimmed)) return { error: "Please enter a valid email address." };
     if (!password || password.length < 6) return { error: "Password must be at least 6 characters." };
-    setStoredAuth(trimmed);
+    await setAuth(trimmed);
     setUser({ email: trimmed });
     return {};
   }, []);
 
   const signOut = useCallback(() => {
-    clearStoredAuth();
-    setUser(null);
+    clearAuth().then(() => setUser(null));
   }, []);
 
   return (
