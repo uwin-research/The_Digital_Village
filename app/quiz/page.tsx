@@ -63,27 +63,27 @@ export default function QuizPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-2 text-3xl font-bold text-amber-950">Quiz</h1>
-      <p className="mb-6 text-lg text-amber-800">
+      <h1 className="mb-2 text-3xl font-bold text-[#000080]">Quiz</h1>
+      <p className="mb-6 text-lg text-black">
         Same 6 questions before and after training. See how you improve.
       </p>
 
       {phase === "pre" && (
         <>
-          <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-base">
+          <p className="mb-6 rounded-lg border-2 border-black bg-white p-4 text-base">
             First, take the pre-quiz. Answer honestly—there are no wrong answers here, only learning.
           </p>
-          <div className="rounded-2xl border border-amber-200 bg-white p-6 shadow-sm">
-            <p className="mb-2 text-sm font-medium text-amber-700">
+          <div className="rounded-2xl border-2 border-black bg-white p-6 shadow-sm">
+            <p className="mb-2 text-sm font-medium text-black">
               Question {currentIndex + 1} of {questions.length}
             </p>
-            <h2 className="mb-4 text-xl font-bold text-amber-950">{currentQ.question}</h2>
+            <h2 className="mb-4 text-xl font-bold text-[#000080]">{currentQ.question}</h2>
             <div className="flex flex-col gap-2">
               {currentQ.options.map((opt, i) => (
                 <label
                   key={i}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 ${
-                    selected === i ? "border-amber-500 bg-amber-50" : "border-amber-200 hover:bg-amber-50"
+                    selected === i ? "border-2 border-[#000080] bg-white" : "border-2 border-black hover:bg-[#e8e8e8]"
                   }`}
                 >
                   <input
@@ -91,7 +91,7 @@ export default function QuizPage() {
                     name="quiz"
                     checked={selected === i}
                     onChange={() => setSelected(i)}
-                    className="h-5 w-5 accent-amber-600"
+                    className="h-5 w-5 accent-[#000080]"
                   />
                   <span className="text-base">{opt}</span>
                 </label>
@@ -101,7 +101,7 @@ export default function QuizPage() {
               type="button"
               onClick={handleNext}
               disabled={selected === null}
-              className="mt-6 rounded-xl bg-amber-500 px-6 py-3 text-lg font-semibold text-amber-950 hover:bg-amber-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="mt-6 rounded-xl bg-[#000080] px-6 py-4 text-lg font-semibold text-white border-2 border-black hover:bg-[#0047ab] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
             >
               {isLast ? "See results" : "Next"}
             </button>
@@ -110,15 +110,15 @@ export default function QuizPage() {
       )}
 
       {phase === "pre-done" && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-          <p className="text-xl font-medium text-amber-950">
+        <div className="rounded-2xl border-2 border-black bg-white p-6">
+          <p className="text-xl font-medium text-[#000080]">
             Pre-quiz score: {preCount} out of {questions.length} correct.
           </p>
-          <p className="mt-2 text-base text-amber-800">Learning is progress. When you&apos;re ready, do the training and then take the post-quiz.</p>
+          <p className="mt-2 text-base text-black">Learning is progress. When you&apos;re ready, do the training and then take the post-quiz.</p>
           <button
             type="button"
             onClick={handleStartPost}
-            className="mt-6 rounded-xl bg-amber-500 px-6 py-3 text-lg font-semibold text-amber-950 hover:bg-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-600"
+            className="mt-6 rounded-xl bg-[#000080] px-6 py-4 text-lg font-semibold text-white border-2 border-black hover:bg-[#0047ab] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
           >
             Take post-quiz now
           </button>
@@ -127,20 +127,20 @@ export default function QuizPage() {
 
       {phase === "post" && (
         <>
-          <p className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-base">
+          <p className="mb-6 rounded-lg border-2 border-black bg-white p-4 text-base">
             Same questions. See how you did after the training.
           </p>
-          <div className="rounded-2xl border border-amber-200 bg-white p-6 shadow-sm">
-            <p className="mb-2 text-sm font-medium text-amber-700">
+          <div className="rounded-2xl border-2 border-black bg-white p-6 shadow-sm">
+            <p className="mb-2 text-sm font-medium text-black">
               Question {currentIndex + 1} of {questions.length}
             </p>
-            <h2 className="mb-4 text-xl font-bold text-amber-950">{currentQ.question}</h2>
+            <h2 className="mb-4 text-xl font-bold text-[#000080]">{currentQ.question}</h2>
             <div className="flex flex-col gap-2">
               {currentQ.options.map((opt, i) => (
                 <label
                   key={i}
                   className={`flex cursor-pointer items-center gap-3 rounded-lg border px-4 py-3 ${
-                    selected === i ? "border-amber-500 bg-amber-50" : "border-amber-200 hover:bg-amber-50"
+                    selected === i ? "border-2 border-[#000080] bg-white" : "border-2 border-black hover:bg-[#e8e8e8]"
                   }`}
                 >
                   <input
@@ -148,7 +148,7 @@ export default function QuizPage() {
                     name="quiz-post"
                     checked={selected === i}
                     onChange={() => setSelected(i)}
-                    className="h-5 w-5 accent-amber-600"
+                    className="h-5 w-5 accent-[#000080]"
                   />
                   <span className="text-base">{opt}</span>
                 </label>
@@ -158,7 +158,7 @@ export default function QuizPage() {
               type="button"
               onClick={handleNext}
               disabled={selected === null}
-              className="mt-6 rounded-xl bg-amber-500 px-6 py-3 text-lg font-semibold text-amber-950 hover:bg-amber-400 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-amber-600"
+              className="mt-6 rounded-xl bg-[#000080] px-6 py-4 text-lg font-semibold text-white border-2 border-black hover:bg-[#0047ab] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
             >
               {isLast ? "See results" : "Next"}
             </button>
@@ -167,16 +167,16 @@ export default function QuizPage() {
       )}
 
       {phase === "post-done" && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6">
-          <p className="text-xl font-medium text-amber-950">
+        <div className="rounded-2xl border-2 border-black bg-white p-6">
+          <p className="text-xl font-medium text-[#000080]">
             Post-quiz score: {postCount} out of {questions.length} correct.
           </p>
           {preScores != null && (
-            <p className="mt-2 text-lg font-medium text-amber-900">
+            <p className="mt-2 text-lg font-medium text-black">
               You improved by {improved} {improved === 1 ? "question" : "questions"}.
             </p>
           )}
-          <p className="mt-2 text-base text-amber-800">Learning is progress.</p>
+          <p className="mt-2 text-base text-black">Learning is progress.</p>
         </div>
       )}
     </div>

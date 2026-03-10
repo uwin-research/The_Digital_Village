@@ -30,14 +30,14 @@ const GLOSSARY_ITEMS: { term: string; definition: string }[] = [
 export default function GlossaryPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
-      <h1 className="mb-2 text-3xl font-bold text-amber-950">Glossary</h1>
+      <h1 className="mb-2 text-3xl font-bold text-[#000080]">Glossary</h1>
       
 
       <dl className="space-y-6">
         {GLOSSARY_ITEMS.map(({ term, definition }) => (
           <div key={term}>
-            <dt className="text-lg font-bold text-amber-950">{term}</dt>
-            <dd className="mt-1 text-base text-amber-800">{definition}</dd>
+            <dt className="text-lg font-bold text-[#000080]">{term}</dt>
+            <dd className="mt-1 text-base text-black">{definition}</dd>
           </div>
         ))}
       </dl>

@@ -9,7 +9,7 @@ export interface QuizQuestion {
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: "1",
-    moduleSlug: "screen-lock",
+    moduleSlug: "first-line-of-defence",
     question: "Why is a screen lock important?",
     options: [
       "So no one else can open your phone if it's lost or stolen.",
@@ -20,7 +20,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "2",
-    moduleSlug: "biometrics",
+    moduleSlug: "first-line-of-defence",
     question: "What should you always keep as a backup to fingerprint or face unlock?",
     options: [
       "Your PIN or passcode.",
@@ -42,7 +42,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "4",
-    moduleSlug: "updates",
+    moduleSlug: "software-updates",
     question: "When is a good time to install a phone software update?",
     options: [
       "When you're on Wi-Fi and charging.",
@@ -53,7 +53,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "5",
-    moduleSlug: "security-apps",
+    moduleSlug: "passwords-logging-in",
     question: "Before installing a security app, what should you check?",
     options: [
       "Star rating, reviews, and developer name.",
@@ -64,7 +64,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   },
   {
     id: "6",
-    moduleSlug: "suspicious-messages",
+    moduleSlug: "scams-phishing",
     question: "A message says 'Click here within 24 hours or your account will be closed.' What is a safe step?",
     options: [
       "Don't click. Verify using the official website or phone number you trust.",

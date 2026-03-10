@@ -12,7 +12,7 @@ interface A11yState {
   highContrast: boolean;
 }
 
-const defaultState: A11yState = { textSize: "medium", highContrast: false };
+const defaultState: A11yState = { textSize: "large", highContrast: false };
 
 function loadState(): A11yState {
   if (typeof window === "undefined") return defaultState;
@@ -20,7 +20,7 @@ function loadState(): A11yState {
     const t = localStorage.getItem(TEXT_SIZE_KEY) as TextSize | null;
     const h = localStorage.getItem(HIGH_CONTRAST_KEY);
     return {
-      textSize: t === "small" || t === "medium" || t === "large" ? t : "medium",
+      textSize: t === "small" || t === "medium" || t === "large" ? t : "large",
       highContrast: h === "true",
     };
   } catch {

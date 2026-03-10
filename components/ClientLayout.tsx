@@ -2,16 +2,14 @@
 
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { NeedHelpButton } from "@/components/NeedHelpButton";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { Suspense } from "react";
-
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-amber-950 focus:outline-none"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-[#000080] focus:px-4 focus:py-2 focus:text-white focus:outline-none"
       >
         Skip to main content
       </a>
@@ -24,7 +22,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         </ProtectedRoute>
       </Suspense>
       <Footer />
-      <NeedHelpButton />
     </>
   );
 }

@@ -1,18 +1,17 @@
 @import "tailwindcss";
 
+/* High-Contrast Senior-Friendly Theme - WCAG AAA */
 :root {
-  --background: #fffbeb;
-  --foreground: #292524;
-  --amber-50: #fffbeb;
-  --amber-100: #fef3c7;
-  --amber-200: #fde68a;
-  --amber-300: #fcd34d;
-  --amber-400: #fbbf24;
-  --amber-500: #f59e0b;
-  --amber-600: #d97706;
-  --amber-700: #b45309;
-  --amber-800: #92400e;
-  --amber-950: #292524;
+  --background: #ffffff;
+  --foreground: #000000;
+  --heading: #000080;
+  --link: #0047ab;
+  --link-hover: #000080;
+  --button-bg: #000080;
+  --button-text: #ffffff;
+  --button-hover-bg: #0047ab;
+  --button-border: #000000;
+  --border: #000000;
 }
 
 @theme inline {
@@ -20,50 +19,70 @@
   --color-foreground: var(--foreground);
 }
 
-/* High contrast mode */
-[data-high-contrast="true"] {
-  --background: #1c1917;
-  --foreground: #fef3c7;
+/* Text size - minimum 20px for senior-friendly readability */
+html {
+  font-size: 22px;
 }
 
-[data-high-contrast="true"] body {
-  background: #1c1917 !important;
-  color: #fef3c7 !important;
-}
-
-[data-high-contrast="true"] .border-amber-200 {
-  border-color: #fde68a !important;
-}
-
-[data-high-contrast="true"] a,
-[data-high-contrast="true"] button {
-  outline: 2px solid #fbbf24;
-  outline-offset: 2px;
-}
-
-/* Text size */
 html[data-text-size="small"] {
-  font-size: 14px;
+  font-size: 20px;
 }
 
 html[data-text-size="medium"] {
-  font-size: 18px;
+  font-size: 22px;
 }
 
 html[data-text-size="large"] {
-  font-size: 22px;
+  font-size: 24px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, sans-serif;
-  line-height: 1.6;
+  font-family: Arial, Helvetica, "Open Sans", system-ui, sans-serif;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Focus visible for keyboard users */
+/* Headings - Navy Blue */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--heading);
+}
+
+/* Links - Navy Blue, always underlined for WCAG AAA */
+a {
+  color: var(--link);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Primary buttons - large, distinct, clear hover */
+.btn-primary {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border: 2px solid var(--button-border);
+  padding: 0.75rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 48px;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-hover-bg);
+}
+
+/* Focus visible for keyboard users - high contrast */
 *:focus-visible {
-  outline: 2px solid #d97706;
+  outline: 3px solid var(--heading);
   outline-offset: 2px;
 }
 

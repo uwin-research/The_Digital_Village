@@ -47,8 +47,8 @@ const CARDS = [
 export default function ResourcesPage() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
-      <h1 className="mb-2 text-3xl font-bold text-amber-950">Resources</h1>
-      <p className="mb-8 text-lg text-amber-800">
+      <h1 className="mb-2 text-3xl font-bold text-[#000080]">Resources</h1>
+      <p className="mb-8 text-lg text-black">
         Quick reference cards. No product endorsements—just simple, general guidance.
       </p>
 
@@ -58,15 +58,15 @@ export default function ResourcesPage() {
           return (
             <article
               key={card.title}
-              className="rounded-2xl border border-amber-200 bg-white p-6 shadow-sm"
+              className="rounded-2xl border border-2 border-black bg-white p-6 shadow-sm"
             >
               <div className="mb-4 flex items-center gap-3">
-                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-200 text-amber-900">
+                <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[#e8e8e8] text-[#000080]">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h2 className="text-xl font-bold text-amber-950">{card.title}</h2>
+                <h2 className="text-xl font-bold text-[#000080]">{card.title}</h2>
               </div>
-              <ul className="list-inside list-disc space-y-2 text-base text-amber-800">
+              <ul className="list-inside list-disc space-y-2 text-base text-black">
                 {card.items.map((item, i) => (
                   <li key={i}>{item}</li>
                 ))}
