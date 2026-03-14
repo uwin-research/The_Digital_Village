@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/context/AuthContext";
-import { Menu, X } from "lucide-react";
+import { LogIn, LogOut, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -59,29 +59,31 @@ export function Header() {
         <div className="flex shrink-0 items-center gap-2">
           <button
             type="button"
-            className="flex items-center gap-2 rounded-lg px-4 py-3 font-semibold hover:bg-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+            className="flex items-center rounded-lg px-4 py-3 font-semibold hover:bg-[#e8e8e8] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-controls="main-nav"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
           >
             {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            <span>{menuOpen ? "Close menu" : "Open menu"}</span>
           </button>
           {user ? (
             <button
               type="button"
               onClick={() => signOut()}
-              className="rounded-lg bg-[#FFD700] px-4 py-3 font-semibold text-black hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+              className="rounded-lg bg-[#FFD700] px-4 py-3 text-black hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+              aria-label="Sign out"
             >
-              Sign out
+              <LogOut className="h-6 w-6" aria-hidden />
             </button>
           ) : (
             <Link
               href="/signin"
-              className="rounded-lg bg-[#FFD700] px-4 py-3 font-semibold text-black no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+              className="rounded-lg bg-[#FFD700] px-4 py-3 text-black no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
               style={{ textDecoration: "none" }}
+              aria-label="Sign in"
             >
-              Sign in
+              <LogIn className="h-6 w-6" aria-hidden />
             </Link>
           )}
         </div>
