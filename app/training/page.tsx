@@ -113,13 +113,13 @@ export default function TrainingPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Header - fills viewport in all screen formats */}
+      {/* Hero Header - scales to fit different window sizes */}
       <header className="relative h-[100dvh] min-h-[100vh] w-full min-w-full overflow-hidden bg-white">
         <Image
           src="/digital-village-hero.png?v=2"
           alt="The Digital Village: Arthur, Elena, and Sam at the sunset patio table, learning together with their devices"
           fill
-          className="object-cover object-center"
+          className="object-contain object-center"
           priority
           sizes="100vw"
           unoptimized
