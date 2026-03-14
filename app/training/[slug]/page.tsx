@@ -1,6 +1,6 @@
 "use client";
 
-import { getModuleBySlug, MODULES, MediaSlot } from "@/lib/modules";
+import { ContentBlock, getModuleBySlug, MODULES, MediaSlot } from "@/lib/modules";
 import {
   getStoredProgress,
   getUpdatesAnswer,
@@ -360,10 +360,10 @@ export default function ModulePage() {
                 ) : isFirstLineOfDefence && sectionIdx === 2 ? (
                   (() => {
                     const tipBlock = section.blocks.find(
-                      (block, idx) => idx > 0 && block.type === "text" && block.text.startsWith("Tip:")
+                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Tip:")
                     );
                     const stepBlocks = section.blocks.filter(
-                      (block, idx) => idx > 0 && block.type === "text" && !block.text.startsWith("Tip:")
+                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && !block.text.startsWith("Tip:")
                     );
                     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
 
@@ -445,58 +445,7 @@ export default function ModulePage() {
                       )}
                     </ol>
                   </>
-                ) : isFirstLineOfDefence && sectionIdx === 4 ? (
-                  <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
-                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                    </p>
-                    <ol className="ml-6 list-decimal space-y-4">
-                      {section.blocks.slice(1).map((block, blockIdx) =>
-                        block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                            {renderTextBlock(block.text)}
-                          </li>
-                        ) : (
-                          <li key={blockIdx} className="list-none">
-                            <div
-                              className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
-                              role={block.slot.src ? undefined : "img"}
-                              aria-label={block.slot.src ? undefined : block.slot.description}
-                            >
-                              {block.slot.src && block.slot.type === "video" ? (
-                                <div className="space-y-3">
-                                  {block.slot.label && (
-                                    <p className="text-base font-semibold text-[#000080]">{block.slot.label}</p>
-                                  )}
-                                  <video
-                                    controls
-                                    preload="metadata"
-                                    className="w-full rounded-lg border-2 border-black bg-black"
-                                    aria-label={block.slot.alt || block.slot.label || "Training video"}
-                                  >
-                                    <source src={block.slot.src} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                  {block.slot.description && (
-                                    <p className="text-sm text-black">{block.slot.description}</p>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {block.slot.type.toUpperCase()}]</p>
-                                  {block.slot.label && (
-                                    <p className="mb-2 text-sm font-medium text-black">Label: {block.slot.label}</p>
-                                  )}
-                                  <p className="mb-3 text-sm text-black">{block.slot.description}</p>
-                                </>
-                              )}
-                            </div>
-                          </li>
-                        )
-                      )}
-                    </ol>
-                  </>
-                ) : isFirstLineOfDefence && sectionIdx === 5 ? (
+                ) : isFirstLineOfDefence && [4, 5, 6, 7].includes(sectionIdx) ? (
                   <>
                     <p className="text-[28px] font-bold leading-[1.6] text-black">
                       {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
@@ -577,6 +526,59 @@ export default function ModulePage() {
               </button>
                     </div>
                   </>
+                ) : isPasswordsLoggingIn && sectionIdx === 4 ? (
+                  <>
+                    <p className="text-[28px] font-bold leading-[1.6] text-black">
+                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                    </p>
+                    <ol className="ml-6 list-decimal space-y-4">
+                      {section.blocks.slice(1).map((block, blockIdx) =>
+                        block.type === "text" ? (
+                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            {renderTextBlock(block.text)}
+                          </li>
+                        ) : (
+                          <li key={blockIdx} className="list-none">
+                            <div>{renderMediaBlock(block.slot)}</div>
+                          </li>
+                        )
+                      )}
+                    </ol>
+                  </>
+                ) : isPasswordsLoggingIn && sectionIdx === 5 ? (
+                  (() => {
+                    const autofillBlock =
+                      section.blocks.find(
+                        (block): block is ContentBlock =>
+                          block.type === "text" && block.text.startsWith("Definition: Autofill:")
+                      ) ?? null;
+
+                    return (
+                      <>
+                        {section.blocks.map((block, blockIdx) => {
+                          if (block.type === "text" && block.text.startsWith("Definition: Autofill:")) {
+                            return null;
+                          }
+
+                          if (block.type === "text") {
+                            return (
+                              <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                                {renderTextBlock(block.text)}
+                              </p>
+                            );
+                          }
+
+                          return <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>;
+                        })}
+                        {autofillBlock && (
+                          <div className="rounded-xl border-2 border-black bg-[#f5f5f5] p-6" role="note">
+                            <p className="mb-2 text-[24px] font-bold text-[#000080]">Definition Box</p>
+                            <p className="text-[24px] leading-[1.7] text-black">{renderTextBlock(autofillBlock.text)}</p>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()
                 ) : (
                   section.blocks.map((block, blockIdx) =>
                     block.type === "text" ? (

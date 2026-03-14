@@ -167,8 +167,10 @@ export const MODULES: ModuleData[] = [
       { id: "2", text: "Choosing Your Key: Compare PIN, Pattern, and Password lock types for security and convenience." },
       { id: "3", text: "Task: Setting Up Your Passcode (iPhone): Turn on a 6-digit passcode and avoid weak codes like 123456 or your birth year." },
       { id: "4", text: "Biometrics: The Magic Touch: Set up Face ID so your phone can recognize your face quickly and safely." },
-      { id: "5", text: "Find My: The Emergency Plan: Turn on Find My so you can ring, lock, or erase your phone if it goes missing." },
-      { id: "6", text: "The Safety Nap (Auto-Lock): Set Auto-Lock to 30 Seconds or 1 Minute so your phone protects itself when you forget." },
+      { id: "5", text: "Medical ID: Add emergency health details and trusted contacts that helpers can see without your passcode." },
+      { id: "6", text: "Emergency SOS: Set up the fast-call shortcut so your phone can call for help quickly." },
+      { id: "7", text: "How to Use Your Plan: Practice how to open Medical ID and trigger Emergency SOS before a real emergency." },
+      { id: "8", text: "The Safety Nap (Auto-Lock): Set Auto-Lock to 30 Seconds or 1 Minute so your phone protects itself when you forget." },
     ],
     sections: [
       {
@@ -292,52 +294,98 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 5: Find My: The Emergency Plan",
+        title: "Section 5: Medical ID: Your Emergency Lifeline",
         blocks: [
           {
             type: "text",
-            text: "If your phone is lost, you can find it using another computer or a friend's device.",
+            text: "Just like carrying a medical alert bracelet, your iPhone can store a Medical ID. This is a special profile that paramedics can see without needing your secret passcode.",
           },
           {
             type: "text",
-            text: "Remote Lock: Locks your phone from a distance so no one can use it.",
+            text: "Task: Creating Your Medical ID",
           },
           {
             type: "text",
-            text: "Remote Wipe: Deletes everything on the phone if it is stolen.",
+            text: "Find the Heart: Open the Health app (it has a white icon with a small red heart).",
           },
           {
             type: "text",
-            text: "Play Sound: Makes the phone ring loudly, even if it's on silent.",
+            text: "Open Your Profile: Tap your picture or initials in the top-right corner.",
           },
           {
             type: "text",
-            text: "Task: Activating Find My. Tap your Name at the top of Settings.",
+            text: "Medical ID: Tap Medical ID, then tap Edit or Get Started.",
           },
           {
             type: "text",
-            text: "Tap Find My (the green radar icon).",
+            text: "Fill in the Blanks: Enter your allergies, medications, and blood type.",
           },
           {
             type: "text",
-            text: "Toggle Find My iPhone to On (Green).",
+            text: "The Lifeline: Scroll to Emergency Contacts. Tap the plus sign (+) and select your daughter or a trusted friend.",
           },
           {
             type: "text",
-            text: "Turn on Send Last Location.",
+            text: "The Secret Switch: Make sure Show When Locked is turned On (Green). This is what allows help to find your info in an emergency.",
           },
           {
-            type: "media",
-            slot: {
-              type: "image",
-              description: "A large, clear illustration of a phone's location on a map with Lock and Erase buttons.",
-              label: "Find My Map",
-            },
+            type: "text",
+            text: "Save: Tap Done.",
           },
         ],
       },
       {
-        title: "Section 6: The Safety Nap (Auto-Lock)",
+        title: "Section 6: Emergency SOS: The Fast-Call Button",
+        blocks: [
+          {
+            type: "text",
+            text: "If Elena is in trouble and cannot dial 911 manually, she can use Emergency SOS to call for help and text her daughter her exact location automatically.",
+          },
+          {
+            type: "text",
+            text: "Task: Setting Up Your SOS Shortcut",
+          },
+          {
+            type: "text",
+            text: "Go to Settings: Tap Settings > Emergency SOS.",
+          },
+          {
+            type: "text",
+            text: "Choose Your Move:",
+          },
+          {
+            type: "text",
+            text: "The Squeeze: Turn on Call with Hold and Release. You just squeeze the side and volume buttons together.",
+          },
+          {
+            type: "text",
+            text: "The 5-Tap: Turn on Call with 5 Button Presses. You rapidly click the side button five times.",
+          },
+          {
+            type: "text",
+            text: "Automatic Alerts: Ensure your Emergency Contacts are listed here. After the 911 call ends, your phone will automatically text them your location.",
+          },
+        ],
+      },
+      {
+        title: "Section 7: How to Use Your Plan (The What If Drill)",
+        blocks: [
+          {
+            type: "text",
+            text: "It is important to know how to find this information before a real emergency happens.",
+          },
+          {
+            type: "text",
+            text: "To See Medical Info: If the phone is locked, swipe as if to unlock it. Tap Emergency at the bottom left, then tap Medical ID.",
+          },
+          {
+            type: "text",
+            text: "To Call for Help: Use the Squeeze or 5-Tap method you chose in the settings above. A loud siren will sound, and a countdown will begin before calling for help.",
+          },
+        ],
+      },
+      {
+        title: "Section 8: The Safety Nap (Auto-Lock)",
         blocks: [
           {
             type: "text",
@@ -370,7 +418,8 @@ export const MODULES: ModuleData[] = [
       { id: "2", text: "The Passphrase Method: Build a long, memorable password from a few picture words." },
       { id: "3", text: "Email: The Master Key to Your Castle: Protect your email first because password resets go there." },
       { id: "4", text: "Password Managers: Use a digital notebook to store and fill passwords for you." },
-      { id: "5", text: "Task: Checking Your Password Strength: Test one of your current passwords and upgrade it into a passphrase." },
+      { id: "5", text: "Adding a Password to Your Digital Vault: Manually save a website, username, and strong passphrase inside your iPhone password vault." },
+      { id: "6", text: "Why This is Better for Sam: See how Autofill, security alerts, and iCloud backups make password safety easier." },
     ],
     sections: [
       {
@@ -490,19 +539,80 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 5: Task: Checking Your Password Strength",
+        title: "Section 5: Adding a Password to Your Digital Vault",
         blocks: [
           {
             type: "text",
-            text: "The Test: Write down a password you currently use, but do not show anyone.",
+            text: "While your iPhone often asks to save passwords automatically, Sam can also add them manually to keep his Digital Notebook organized.",
           },
           {
             type: "text",
-            text: "The Evaluation: Does it have at least 12 characters? Does it avoid your name or birth year?",
+            text: "Open the Vault: Go to your Home Screen and tap the Settings app (the grey gear icon).",
           },
           {
             type: "text",
-            text: "The Upgrade: Practice turning that password into a passphrase using Sam's method above.",
+            text: "Enter Passwords: Scroll down and tap on Passwords.",
+          },
+          {
+            type: "text",
+            text: "Prove It's You: Use your Face ID, Touch ID, or Passcode to open the vault.",
+          },
+          {
+            type: "text",
+            text: "Add New: Look for the Plus Sign (+) in the top right corner of the screen and tap it.",
+          },
+          {
+            type: "text",
+            text: "Website: Type the name of the site (e.g., facebook.com or library.org).",
+          },
+          {
+            type: "text",
+            text: "User Name: Type the email or name you use to log in.",
+          },
+          {
+            type: "text",
+            text: "Password: Type in your new, strong Passphrase.",
+          },
+          {
+            type: "text",
+            text: "Save: Tap Done in the top right corner.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "A screen recording of a hand slowly tapping the plus icon and typing a passphrase. The video pauses for 2 seconds after Done is tapped to show the password appearing in the list.",
+              label: "Video Guide: Add a Password Manually",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 6: Why This is Better for Sam",
+        blocks: [
+          {
+            type: "text",
+            text: "No More Forgetting: Once Sam saves a password here, his iPhone will offer to type it in for him next time he visits that website.",
+          },
+          {
+            type: "text",
+            text: "Security Alerts: If Sam reuses the same password on two different sites, the iPhone will show a small Security Recommendation warning him to change one of them to a unique passphrase.",
+          },
+          {
+            type: "text",
+            text: "Safe Backups: These passwords are saved to Sam's private iCloud, meaning if he ever gets a new phone, all his passwords will automatically move over with him.",
+          },
+          {
+            type: "text",
+            text: "Definition: Autofill: When your phone recognizes a website and offers to type your password for you so you do not have to remember it.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "image",
+              description: "A Before and After infographic. Left side: a messy desk with sticky notes labeled Bank Password and Email Code. Right side: Sam smiling and holding a single iPhone that says All Passwords Secured.",
+              label: "Before and After: All Passwords Secured",
+            },
           },
         ],
       },

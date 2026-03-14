@@ -113,17 +113,21 @@ export default function TrainingPage() {
 
   return (
     <div className="min-h-screen">
-      {/* Hero Header - scales to fit different window sizes */}
-      <header className="relative h-[100dvh] min-h-[100vh] w-full min-w-full overflow-hidden bg-white">
-        <Image
-          src="/digital-village-hero.png?v=2"
-          alt="The Digital Village: Arthur, Elena, and Sam at the sunset patio table, learning together with their devices"
-          fill
-          className="object-contain object-center"
-          priority
-          sizes="100vw"
-          unoptimized
-        />
+      {/* Hero Header - uses device-optimized artwork */}
+      <header className="relative h-[100dvh] min-h-[100vh] w-full overflow-hidden bg-white">
+        <picture>
+          <source media="(max-width: 767px)" srcSet="/digital-village-hero-mobile.png" />
+          <source media="(min-width: 768px) and (max-width: 1199px) and (orientation: portrait)" srcSet="/digital-village-hero-tablet.png" />
+          <source media="(min-width: 768px) and (max-width: 1199px) and (orientation: landscape)" srcSet="/digital-village-hero-tablet.png" />
+          <source media="(min-width: 1200px)" srcSet="/digital-village-hero.png?v=2" />
+          <img
+            src="/digital-village-hero.png?v=2"
+            alt="The Digital Village: Arthur, Elena, and Sam at the sunset patio table, learning together with their devices"
+            className="h-full w-full object-cover object-center"
+            loading="eager"
+            decoding="async"
+          />
+        </picture>
       </header>
 
       {/* Main Content */}
