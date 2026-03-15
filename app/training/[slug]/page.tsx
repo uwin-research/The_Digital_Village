@@ -138,6 +138,7 @@ export default function ModulePage() {
   const isGettingComfortable = moduleData.slug === "getting-comfortable";
   const isFirstLineOfDefence = moduleData.slug === "first-line-of-defence";
   const isPasswordsLoggingIn = moduleData.slug === "passwords-logging-in";
+  const isTwoFactorAuth = moduleData.slug === "two-factor-auth";
   const nextModule = MODULES.find((module, index) => MODULES[index - 1]?.slug === slug) ?? null;
   const renderTextBlock = (text: string) => {
     const colonIndex = text.indexOf(":");
@@ -203,8 +204,8 @@ export default function ModulePage() {
       )}
     </div>
   );
-  const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn;
-  const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn;
+  const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
+  const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
 
   return (
     <div className={`mx-auto px-4 py-8 ${showWideLayout ? "max-w-5xl" : "max-w-3xl"}`}>
@@ -222,6 +223,8 @@ export default function ModulePage() {
           ? "Module 2: Your First Line of Defence"
           : isPasswordsLoggingIn
             ? "Module 3: Passwords & Logging in Safely"
+            : isTwoFactorAuth
+              ? "Module 4: Two-Factor Authentication (2FA)"
             : moduleData.title}
       </h1>
       {moduleData.scenario && (
@@ -285,6 +288,28 @@ export default function ModulePage() {
             </h2>
             <p className="mt-3 text-[24px] leading-[1.7] text-black">
               The goal: teach Sam how to create strong passwords that are easy to remember, and introduce him to a digital notebook that does the heavy lifting.
+            </p>
+          </div>
+        </section>
+      )}
+
+      {isTwoFactorAuth && (
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-4-hero">
+          <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
+            <Image
+              src="/two-factor-auth.png"
+              alt="Sam learning about two-factor authentication on his phone."
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          </div>
+          <div className="p-6">
+            <h2 id="module-4-hero" className="text-[32px] font-bold text-[#000080]">
+              The Second Lock for Your Digital Door
+            </h2>
+            <p className="mt-3 text-[24px] leading-[1.7] text-black">
+              The goal: help Sam understand that a password alone is not enough, and show him how a one-time code on his phone blocks strangers from getting in.
             </p>
           </div>
         </section>
@@ -495,6 +520,37 @@ export default function ModulePage() {
                         )
                       )}
                     </ol>
+                  </>
+                ) : isTwoFactorAuth && sectionIdx === 1 ? (
+                  <>
+                    <p className="text-[28px] font-bold leading-[1.6] text-black">
+                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                    </p>
+                    <ol className="ml-6 list-decimal space-y-4">
+                      {section.blocks.slice(1).map((block, blockIdx) =>
+                        block.type === "text" ? (
+                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            {renderTextBlock(block.text)}
+                          </li>
+                        ) : (
+                          <li key={blockIdx} className="list-none">
+                            <div>{renderMediaBlock(block.slot)}</div>
+                          </li>
+                        )
+                      )}
+                    </ol>
+                  </>
+                ) : isTwoFactorAuth && sectionIdx === 2 ? (
+                  <>
+                    {section.blocks.map((block, blockIdx) =>
+                      block.type === "text" ? (
+                        <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                          {renderTextBlock(block.text)}
+                        </p>
+                      ) : (
+                        <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                      )
+                    )}
                   </>
                 ) : isPasswordsLoggingIn && sectionIdx === 1 ? (
                   <>

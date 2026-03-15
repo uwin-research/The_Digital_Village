@@ -622,13 +622,135 @@ export const MODULES: ModuleData[] = [
   {
     slug: "two-factor-auth",
     title: "Two-Factor Authentication (2FA)",
-    scenario: "Add a second lock to your accounts. A password is the key; 2FA is the deadbolt.",
-    estimatedMinutes: 15,
+    scenario: "Sam now has strong passphrases, but he still worries: What if a clever thief guesses my password anyway? We explain to Sam that 2FA is like a high-security apartment building. Even if a stranger steals your front door key (your password), they still cannot get past the security guard in the lobby (the 2FA code on your phone).",
+    estimatedMinutes: 18,
     steps: [
-      { id: "1", text: "What 2FA Is: When you log in, you need your password AND a code sent to your phone. It's like a double lock—a key plus a deadbolt." },
-      { id: "2", text: "Types of 2FA: You can receive a code by text, use an app, or check email. Text is common; swipe down to read the code without leaving your app." },
-      { id: "3", text: "Setting Up 2FA on Email: Open your email security settings. Click '2-Step Verification' and choose 'Text Message' as your backup." },
-      { id: "4", text: "What To Do If Locked Out: Save backup codes when you set up 2FA. Print them and store them in a safe place—like a drawer at home." },
+      { id: "1", text: "What is 2FA?: Learn the Two-Key Rule: something you know and something you have." },
+      { id: "2", text: "Task: Turning on 2FA for your Apple ID: Turn on two-factor authentication and confirm your phone number for security codes." },
+      { id: "3", text: "How to Use 2FA in Daily Life: Practice allowing a real login request and typing the 6-digit code." },
+      { id: "4", text: "Recovery Codes: Your Emergency Spare Key: Keep backup codes in a safe place at home in case you lose your phone." },
+    ],
+    sections: [
+      {
+        title: "Section 1: What is 2FA? (The Two-Key Rule)",
+        blocks: [
+          {
+            type: "text",
+            text: "Two-Factor Authentication (2FA) is a safety check that requires two different pieces of evidence to prove it is really you.",
+          },
+          {
+            type: "text",
+            text: "Factor 1: Something you KNOW. This is your secret password or passphrase.",
+          },
+          {
+            type: "text",
+            text: "Factor 2: Something you HAVE. This is your physical iPhone, which receives a unique, one-time code.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "image",
+              description: "A Two-Key diagram. One key is labeled Passphrase, and the other is a smartphone icon labeled Text Code. Both are needed to open a large digital treasure chest.",
+              label: "Two-Key Diagram",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 2: Task: Turning on 2FA for your Apple ID",
+        blocks: [
+          {
+            type: "text",
+            text: "Since Sam's iPhone holds his family photos and banking details, securing his Apple ID is his top priority.",
+          },
+          {
+            type: "text",
+            text: "Open Settings: Tap the Grey Gear icon.",
+          },
+          {
+            type: "text",
+            text: "Your Profile: Tap your Apple ID name at the very top of the list.",
+          },
+          {
+            type: "text",
+            text: "Sign-In Settings: Select Sign-In & Security.",
+          },
+          {
+            type: "text",
+            text: "The Safety Switch: Tap Turn On Two-Factor Authentication.",
+          },
+          {
+            type: "text",
+            text: "Confirm: Tap Continue.",
+          },
+          {
+            type: "text",
+            text: "Your Phone Number: Enter the phone number where you want to receive your codes. Choose Text Message (this is usually easiest for Sam).",
+          },
+          {
+            type: "text",
+            text: "Final Check: Tap Next and enter the 6-digit code Apple just sent to your phone to finish the setup.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "A slow-paced screen recording of an iPhone. A finger taps the name at the top, selects Sign-In & Security, and toggles Two-Factor Authentication to On. A 1.5-second pause shows the 6-digit code arriving as a notification.",
+              label: "Video Guide: Turn On 2FA for Apple ID",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 3: How to Use 2FA in Daily Life",
+        blocks: [
+          {
+            type: "text",
+            text: "Sam needs to know what to do when that Second Lock pops up.",
+          },
+          {
+            type: "text",
+            text: "The Request: When Sam logs into his email on a new computer, a message will pop up on his iPhone: Apple ID Sign-In Requested.",
+          },
+          {
+            type: "text",
+            text: "The Approval: He taps Allow.",
+          },
+          {
+            type: "text",
+            text: "The Code: A large, 6-digit code appears on his iPhone screen.",
+          },
+          {
+            type: "text",
+            text: "The Entry: Sam simply types those 6 numbers into the computer screen.",
+          },
+          {
+            type: "text",
+            text: "Safety Rule: If Sam gets a code when he is not trying to log in, he should tap Don't Allow. This means a stranger tried to use his password, but the Second Lock stopped them.",
+          },
+        ],
+      },
+      {
+        title: "Section 4: Recovery Codes: Your Emergency Spare Key",
+        blocks: [
+          {
+            type: "text",
+            text: "If Sam ever loses his phone, he might worry about being locked out of his own life.",
+          },
+          {
+            type: "text",
+            text: "What are Backup Codes?: These are a list of one-time-use codes given to you when you set up 2FA.",
+          },
+          {
+            type: "text",
+            text: "Sam's Task: He should print these codes out or write them down and keep them in his physical filing cabinet at home.",
+          },
+          {
+            type: "text",
+            text: "The Use: These are his spare keys to get back into his accounts if he does not have his phone to receive a text.",
+          },
+        ],
+      },
     ],
     reassurance: "Backup codes are your safety net. Keep them somewhere safe and you won't get locked out.",
   },
