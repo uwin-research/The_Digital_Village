@@ -8,8 +8,6 @@ import {
   getSuspiciousAnswer as apiGetSuspiciousAnswer,
   setSuspiciousAnswerApi,
   clearSuspiciousAnswer,
-  getQuizScores,
-  setQuizScores,
   deleteModuleProgress as apiDeleteModuleProgress,
 } from "@/lib/api";
 import type { ModuleData } from "@/lib/modules";
@@ -63,24 +61,6 @@ export async function unmarkModuleComplete(module: Pick<ModuleData, "slug" | "st
   if (module.hasInteractiveMessage) await clearSuspiciousAnswer();
   else if (module.afterCheckQuestion) await clearUpdatesAnswer();
   else if (module.steps.length > 0) await apiDeleteModuleProgress(module.slug);
-}
-
-export async function getQuizPreScores(): Promise<number[] | null> {
-  const { preScores } = await getQuizScores();
-  return preScores;
-}
-
-export async function getQuizPostScores(): Promise<number[] | null> {
-  const { postScores } = await getQuizScores();
-  return postScores;
-}
-
-export async function setQuizPreScores(scores: number[]): Promise<void> {
-  await setQuizScores("pre", scores);
-}
-
-export async function setQuizPostScores(scores: number[]): Promise<void> {
-  await setQuizScores("post", scores);
 }
 
 export function countCompletedModules(

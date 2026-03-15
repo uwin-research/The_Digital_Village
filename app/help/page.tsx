@@ -1,5 +1,3 @@
-import Link from "next/link";
-
 export default function HelpPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8">
@@ -52,14 +50,8 @@ export default function HelpPage() {
         <p className="text-base text-black">
           Contact your phone provider or a trusted family member or friend. This site is educational only. If you think you&apos;re at risk, get help from someone you know in person or by a phone number you already trust.
         </p>
-        <p className="mt-4">
-          <Link
-            href="/contact"
-            className="font-medium text-[#0047ab] underline hover:text-[#000080] focus:outline-none focus:ring-2 focus:ring-[#000080] rounded"
-          >
-            Send us a message
-          </Link>
-          {" "}(we can&apos;t give personal advice, but we read feedback).
+        <p className="mt-4 text-base text-black">
+          If you need one-to-one help, ask a trusted family member, friend, or phone provider to sit with you while you work through the steps.
         </p>
       </section>
     </div>

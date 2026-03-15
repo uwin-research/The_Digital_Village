@@ -28,9 +28,7 @@ type DataKey =
   | "auth"
   | "progress"
   | "updates_answer"
-  | "suspicious_answer"
-  | "quiz_pre"
-  | "quiz_post";
+  | "suspicious_answer";
 
 export function getData(sessionId: string, key: DataKey): string | null {
   const database = getDb();

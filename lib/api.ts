@@ -87,13 +87,3 @@ export async function clearSuspiciousAnswer(): Promise<void> {
   await fetchApi("/api/suspicious-answer", { method: "DELETE" });
 }
 
-export async function getQuizScores(): Promise<{ preScores: number[] | null; postScores: number[] | null }> {
-  return fetchApi("/api/quiz-scores");
-}
-
-export async function setQuizScores(type: "pre" | "post", scores: number[]): Promise<void> {
-  await fetchApi("/api/quiz-scores", {
-    method: "POST",
-    body: JSON.stringify({ type, scores }),
-  });
-}

@@ -2,7 +2,7 @@
 
 **Your Phone, Your Privacy, Your Peace of Mind.**
 
-A senior-friendly training website that teaches phone security through step-by-step tasks and a short quiz.
+A senior-friendly training website that teaches phone security through step-by-step tasks.
 
 ## Run the site
 
@@ -19,10 +19,8 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Sign in** — Email + password (client-side only). Training and My Plan are gated; redirects to sign-in with `?next=` and back after login
 - **Training** — List of 6 modules with progress bar; each module has a detail page with checklist and tips
 - **My Plan** — Printable checklist synced with progress (localStorage)
-- **Quiz** — Pre- and post-quiz (same 6 questions), score comparison
 - **Help** — Getting started and common issues
 - **Resources** — Quick reference cards (no product endorsements)
-- **Contact** — Simple form (front-end only; shows thank-you message)
 
 ## Accessibility
 
