@@ -628,7 +628,9 @@ export const MODULES: ModuleData[] = [
       { id: "1", text: "What is 2FA?: Learn the Two-Key Rule: something you know and something you have." },
       { id: "2", text: "Task: Turning on 2FA for your Apple ID: Turn on two-factor authentication and confirm your phone number for security codes." },
       { id: "3", text: "How to Use 2FA in Daily Life: Practice allowing a real login request and typing the 6-digit code." },
-      { id: "4", text: "Recovery Codes: Your Emergency Spare Key: Keep backup codes in a safe place at home in case you lose your phone." },
+      { id: "4", text: "What If I Can't Get My 2FA Code?: Learn the safe backup options Apple offers if Sam cannot see a code on his iPhone." },
+      { id: "5", text: "Pre-emptive Solutions: Sam's Spare Key Plan: Add a trusted backup number now so Sam has another way to receive codes." },
+      { id: "6", text: "Generating Codes Without the Internet: Learn how to get a verification code directly from iPhone settings while offline." },
     ],
     sections: [
       {
@@ -731,23 +733,109 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 4: Recovery Codes: Your Emergency Spare Key",
+        title: "Section 4: What If I Can't Get My 2FA Code?",
         blocks: [
           {
             type: "text",
-            text: "If Sam ever loses his phone, he might worry about being locked out of his own life.",
+            text: "Sam might worry, What if my phone battery is dead or I leave it at home? Apple provides several back doors to help you get back into your account safely.",
           },
           {
             type: "text",
-            text: "What are Backup Codes?: These are a list of one-time-use codes given to you when you set up 2FA.",
+            text: "Option 1: Use Your Other Apple Devices. If Sam also owns an iPad or a Mac computer, the 6-digit code will automatically pop up on those screens at the same time it appears on his iPhone.",
           },
           {
             type: "text",
-            text: "Sam's Task: He should print these codes out or write them down and keep them in his physical filing cabinet at home.",
+            text: "Option 2: The Phone Call Trick. If Sam cannot see his text messages, he can ask Apple to call him instead.",
           },
           {
             type: "text",
-            text: "The Use: These are his spare keys to get back into his accounts if he does not have his phone to receive a text.",
+            text: "Didn't Get a Code?: When the screen asks for a code, tap Didn't Get a Code?.",
+          },
+          {
+            type: "text",
+            text: "Choose the Call Option: Choose the option to receive a phone call.",
+          },
+          {
+            type: "text",
+            text: "Listen for the Code: Sam's phone (or landline) will ring, and a friendly automated voice will read the numbers out loud for him to write down.",
+          },
+          {
+            type: "text",
+            text: "Option 3: Account Recovery (The Last Resort). If Sam has no devices and no phone, he can go to iforgot.apple.com on any computer.",
+          },
+          {
+            type: "text",
+            text: "Note: This process is very secure and can take several days because Apple needs to verify it's really Sam and not a hacker.",
+          },
+        ],
+      },
+      {
+        title: "Section 5: Pre-emptive Solutions: Sam's Spare Key Plan",
+        blocks: [
+          {
+            type: "text",
+            text: "To prevent ever needing the Last Resort, Sam should set up a backup plan today.",
+          },
+          {
+            type: "text",
+            text: "Task: Add a Trusted Backup Number",
+          },
+          {
+            type: "text",
+            text: "Sam can add a second phone number, like a landline or a trusted family member's phone, to his account.",
+          },
+          {
+            type: "text",
+            text: "Go to Settings > [Your Name] > Sign-In & Security.",
+          },
+          {
+            type: "text",
+            text: "Tap Edit (next to Trusted Phone Number).",
+          },
+          {
+            type: "text",
+            text: "Tap Add a Trusted Phone Number.",
+          },
+          {
+            type: "text",
+            text: "Enter the number of a family member you trust.",
+          },
+          {
+            type: "text",
+            text: "Now, if Sam loses his phone, he can choose to send the 2FA code to his daughter's phone to help him log in.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "A screen recording showing the path to add a second trusted number. It highlights the Add a Trusted Phone Number button in blue. A 2-second pause shows a list with two numbers: Primary and Back-up (Daughter).",
+              label: "Video Guide: Add a Trusted Phone Number",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 6: Generating Codes Without the Internet",
+        blocks: [
+          {
+            type: "text",
+            text: "If Sam is traveling and does not have a cell signal, he can still get a code directly from his iPhone settings.",
+          },
+          {
+            type: "text",
+            text: "Go to Settings > [Your Name].",
+          },
+          {
+            type: "text",
+            text: "Tap Sign-In & Security.",
+          },
+          {
+            type: "text",
+            text: "Tap Get Verification Code.",
+          },
+          {
+            type: "text",
+            text: "A code will appear instantly, even if the phone is offline.",
           },
         ],
       },

@@ -552,6 +552,25 @@ export default function ModulePage() {
                       )
                     )}
                   </>
+                ) : isTwoFactorAuth && [4, 5].includes(sectionIdx) ? (
+                  <>
+                    <p className="text-[28px] font-bold leading-[1.6] text-black">
+                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                    </p>
+                    <ol className="ml-6 list-decimal space-y-4">
+                      {section.blocks.slice(1).map((block, blockIdx) =>
+                        block.type === "text" ? (
+                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            {renderTextBlock(block.text)}
+                          </li>
+                        ) : (
+                          <li key={blockIdx} className="list-none">
+                            <div>{renderMediaBlock(block.slot)}</div>
+                          </li>
+                        )
+                      )}
+                    </ol>
+                  </>
                 ) : isPasswordsLoggingIn && sectionIdx === 1 ? (
                   <>
                     {section.blocks.map((block, blockIdx) =>
