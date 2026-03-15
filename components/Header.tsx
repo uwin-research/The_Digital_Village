@@ -18,6 +18,13 @@ export function Header() {
   const pathname = usePathname();
   const { user, signOut } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  const isActiveLink = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
 
   return (
     <header className="bg-white text-black border-b-2 border-black" role="banner">
@@ -42,7 +49,7 @@ export function Header() {
                 <Link
                   href={link.href}
                   className={`block rounded-lg px-4 py-2 text-sm font-semibold no-underline focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 ${
-                    pathname === link.href
+                    isActiveLink(link.href)
                       ? "border-2 border-black bg-white text-[#000080]"
                       : "bg-white text-black hover:bg-[#e8e8e8]"
                   }`}
@@ -97,7 +104,7 @@ export function Header() {
                 key={link.href}
                 href={link.href}
                 className={`rounded-lg px-4 py-2 text-sm font-semibold no-underline focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 ${
-                  pathname === link.href
+                  isActiveLink(link.href)
                     ? "border-2 border-black bg-[#FFC107] text-black"
                     : "bg-[#FFD700] text-black hover:bg-[#FFC107]"
                 }`}
