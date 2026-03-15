@@ -92,3 +92,13 @@ a:hover {
     display: none !important;
   }
 }
+
+/* Keep Next.js dev portal from affecting page layout while developing. */
+nextjs-portal {
+  position: fixed;
+  top: 0 !important;
+  left: 0 !important;
+  width: 0 !important;
+  height: 0 !important;
+  pointer-events: none;
+}
