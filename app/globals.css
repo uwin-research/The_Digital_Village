@@ -102,3 +102,18 @@ nextjs-portal {
   height: 0 !important;
   pointer-events: none;
 }
+
+/* Slightly larger native video controls for easier tapping. */
+video::-webkit-media-controls-panel {
+  min-height: 64px;
+}
+
+video::-webkit-media-controls-play-button,
+video::-webkit-media-controls-mute-button,
+video::-webkit-media-controls-fullscreen-button,
+video::-webkit-media-controls-timeline,
+video::-webkit-media-controls-current-time-display,
+video::-webkit-media-controls-time-remaining-display {
+  transform: scale(1.18);
+  transform-origin: center;
+}

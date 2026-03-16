@@ -254,8 +254,10 @@ export const MODULES: ModuleData[] = [
             type: "media",
             slot: {
               type: "video",
-              description: "Slow-motion screen recording of setting a Passcode on iPhone.",
+              description: "",
               label: "Video Guide: Set Your Passcode",
+              alt: "Video guide showing how to set up an iPhone passcode.",
+              src: "/module-2-passcode-guide.mp4",
             },
           },
         ],

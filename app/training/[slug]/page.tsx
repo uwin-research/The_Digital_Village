@@ -169,31 +169,30 @@ export default function ModulePage() {
         height={675}
         className="h-auto w-full rounded-lg bg-white"
       />
+    ) : slot.src && slot.type === "video" ? (
+      <div className="space-y-3">
+        {slot.label && (
+          <p className="text-base font-semibold text-[#000080]">{slot.label}</p>
+        )}
+        <video
+          controls
+          preload="metadata"
+          className="w-full rounded-lg border-2 border-black bg-black"
+          aria-label={slot.alt || slot.label || "Training video"}
+        >
+          <source src={slot.src} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+        {slot.description && (
+          <p className="text-sm text-black">{slot.description}</p>
+        )}
+      </div>
     ) : (
       <div
         className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
         role={slot.src ? undefined : "img"}
         aria-label={slot.src ? undefined : slot.description}
       >
-        {slot.src && slot.type === "video" ? (
-        <div className="space-y-3">
-          {slot.label && (
-            <p className="text-base font-semibold text-[#000080]">{slot.label}</p>
-          )}
-          <video
-            controls
-            preload="metadata"
-            className="w-full rounded-lg border-2 border-black bg-black"
-            aria-label={slot.alt || slot.label || "Training video"}
-          >
-            <source src={slot.src} type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-          {slot.description && (
-            <p className="text-sm text-black">{slot.description}</p>
-          )}
-        </div>
-        ) : (
         <>
           <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {slot.type.toUpperCase()}]</p>
           {slot.label && (
@@ -210,7 +209,6 @@ export default function ModulePage() {
             </ul>
           )}
         </>
-        )}
       </div>
     );
   const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
@@ -403,28 +401,41 @@ export default function ModulePage() {
 
                     return (
                       <>
-                        <p className="text-[28px] font-bold leading-[1.6] text-black">
-                          {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                        </p>
-                        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_280px] lg:items-start">
-                          <ol className="ml-6 list-decimal space-y-4">
-                            {stepBlocks.map((block, blockIdx) => (
-                              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                                {renderTextBlock(block.text)}
-                              </li>
+                        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
+                          <div className="space-y-4">
+                            <p className="text-[28px] font-bold leading-[1.6] text-black">
+                              {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                            </p>
+                            <ol className="ml-6 list-decimal space-y-3">
+                              {stepBlocks.map((block, blockIdx) => (
+                                <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                                  {renderTextBlock(block.text)}
+                                </li>
+                              ))}
+                            </ol>
+                            {tipBlock && (
+                              <div className="relative mt-28 max-w-[420px] pt-20">
+                                <aside className="absolute left-[76%] -top-[5.5rem] z-10 w-full max-w-[260px] -translate-x-1/2 rounded-[2rem] bg-[#d0d0d0] px-6 py-4 text-[22px] font-medium leading-[1.6] text-black shadow-sm md:left-[108%] md:-top-[4.5rem] shadow-sm">
+                                  <span className="absolute -bottom-4 left-6 h-8 w-8 rounded-full bg-[#d0d0d0]" aria-hidden />
+                                  <span className="absolute -bottom-9 left-3 h-5 w-5 rounded-full bg-[#d0d0d0]" aria-hidden />
+                                  {renderTextBlock(tipBlock.text)}
+                                </aside>
+                                <Image
+                                  src="/module-2-passcode-thinking-v2.png"
+                                  alt="Elena thinking while looking at her phone."
+                                  width={640}
+                                  height={400}
+                                  className="h-auto w-full"
+                                />
+                              </div>
+                            )}
+                          </div>
+                          <div className="space-y-4">
+                            {mediaBlocks.map((block, blockIdx) => (
+                              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
                             ))}
-                          </ol>
-                          {tipBlock && (
-                            <aside className="relative mr-2 rounded-[2rem] bg-[#d0d0d0] px-6 py-5 text-[22px] font-medium leading-[1.6] text-black shadow-sm">
-                              <span className="absolute -bottom-4 left-6 h-8 w-8 rounded-full bg-[#d0d0d0]" aria-hidden />
-                              <span className="absolute -bottom-9 left-3 h-5 w-5 rounded-full bg-[#d0d0d0]" aria-hidden />
-                              {renderTextBlock(tipBlock.text)}
-                            </aside>
-                          )}
+                          </div>
                         </div>
-                        {mediaBlocks.map((block, blockIdx) => (
-                          <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-                        ))}
                       </>
                     );
                   })()

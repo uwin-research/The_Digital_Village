@@ -28,14 +28,14 @@ export function Header() {
 
   return (
     <header className="bg-white text-black border-b-2 border-black" role="banner">
-      <div className="flex items-center justify-between gap-2 pl-0 pr-2 py-2">
+      <div className="flex items-center justify-between gap-2 pl-4 pr-2 py-2">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-1 font-bold text-[#000080] no-underline hover:text-[#0047ab] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 rounded"
+          className="flex shrink-0 items-center gap-1 font-extrabold no-underline focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 rounded"
           aria-label="The Digital Village home"
-          style={{ textDecoration: "none" }}
+          style={{ textDecoration: "none", color: "#000080" }}
         >
-          <span className="text-lg whitespace-nowrap">The Digital Village</span>
+          <span className="whitespace-nowrap text-xl md:text-3xl">The Digital Village</span>
         </Link>
 
         <nav
