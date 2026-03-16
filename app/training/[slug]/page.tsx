@@ -160,13 +160,22 @@ export default function ModulePage() {
       </>
     );
   };
-  const renderMediaBlock = (slot: MediaSlot) => (
-    <div
-      className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
-      role={slot.src ? undefined : "img"}
-      aria-label={slot.src ? undefined : slot.description}
-    >
-      {slot.src && slot.type === "video" ? (
+  const renderMediaBlock = (slot: MediaSlot) =>
+    slot.src && slot.type === "image" ? (
+      <Image
+        src={slot.src}
+        alt={slot.alt || slot.label || "Training image"}
+        width={1200}
+        height={675}
+        className="h-auto w-full rounded-lg bg-white"
+      />
+    ) : (
+      <div
+        className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
+        role={slot.src ? undefined : "img"}
+        aria-label={slot.src ? undefined : slot.description}
+      >
+        {slot.src && slot.type === "video" ? (
         <div className="space-y-3">
           {slot.label && (
             <p className="text-base font-semibold text-[#000080]">{slot.label}</p>
@@ -184,7 +193,7 @@ export default function ModulePage() {
             <p className="text-sm text-black">{slot.description}</p>
           )}
         </div>
-      ) : (
+        ) : (
         <>
           <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {slot.type.toUpperCase()}]</p>
           {slot.label && (
@@ -201,9 +210,9 @@ export default function ModulePage() {
             </ul>
           )}
         </>
-      )}
-    </div>
-  );
+        )}
+      </div>
+    );
   const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
   const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
 
@@ -676,7 +685,7 @@ export default function ModulePage() {
             {moduleData.steps.map((step, idx) => (
               <li key={step.id} className="text-base text-black">
                 Step {idx + 1}: {step.text}
-              </li>
+            </li>
           ))}
         </ol>
         )
@@ -803,13 +812,13 @@ export default function ModulePage() {
         )}
         <div className="flex w-full flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/training"
+          <Link
+            href="/training"
               className="rounded-lg px-5 py-3 font-medium text-black bg-[#FFD700] no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080]"
               style={{ textDecoration: "none" }}
-            >
-              Back to Training
-            </Link>
+          >
+            Back to Training
+          </Link>
           </div>
           {markedComplete && nextModule && (
             <div className="ml-auto">

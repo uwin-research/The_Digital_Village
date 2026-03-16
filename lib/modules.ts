@@ -195,9 +195,9 @@ export const MODULES: ModuleData[] = [
           {
             type: "media",
             slot: {
-              type: "animation",
-              description: "A 10-second loop of a smartphone morphing into a heavy iron safe. A large padlock clicks shut on the screen. Text: 'Your Data is Locked.'",
-              label: "Your Data is Locked",
+              type: "image",
+              src: "/module-2-screen-lock-comparison.png",
+              alt: "A comparison between a physical door lock and a phone screen lock, with Elena using her phone in the center.",
             },
           },
         ],
