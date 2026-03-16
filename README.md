@@ -1,10 +1,10 @@
-# The Golden Shield
+# The Digital Village
 
 **Your Phone, Your Privacy, Your Peace of Mind.**
 
-A senior-friendly training website that teaches phone security through step-by-step tasks.
+The Digital Village is a senior-friendly phone safety training site built around large text, high-contrast styling, simple navigation, and step-by-step learning modules.
 
-## Run the site
+## Run locally
 
 ```bash
 npm install
@@ -13,21 +13,53 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Features
+## What the app includes
 
-- **Home** — Hero, 6 module cards, Start Training / Print My Plan
-- **Sign in** — Email + password (client-side only). Training and My Plan are gated; redirects to sign-in with `?next=` and back after login
-- **Training** — List of 6 modules with progress bar; each module has a detail page with checklist and tips
-- **My Plan** — Printable checklist synced with progress (localStorage)
-- **Help** — Getting started and common issues
-- **Resources** — Quick reference cards (no product endorsements)
+- **Home**: a full-screen responsive hero and a simple entry point into training
+- **Sign in**: lightweight email sign-in that gates training content
+- **Training dashboard**: 9 guided modules with progress tracking and completion badges
+- **Module pages**: large-type lesson pages with scenarios, step lists, media slots, videos, and custom layouts for key modules
+- **My Plan**: a printable checklist view of module progress
+- **Glossary**: plain-language definitions for security terms
+- **Help**: getting-started guidance and common troubleshooting tips
+- **Resources**: quick-reference safety reminders
 
-## Accessibility
+## Training modules
 
-- Skip-to-content link, text size (A- / A / A+), high-contrast toggle
-- Large buttons, plain language, WCAG-friendly focus states
-- Progress saved in localStorage
+1. Getting Comfortable with Your Device
+2. Your First Line of Defence
+3. Passwords & Logging in Safely
+4. Two-Factor Authentication (2FA)
+5. App Permissions & Safety
+6. Software Updates & Habits
+7. Recognising Scams & Phishing
+8. Public Wi-Fi & Safe Browsing
+9. Caches, Cookies & Digital Clutter
 
-## Tech
+## Accessibility and design goals
 
-- Next.js (App Router), Tailwind CSS, lucide-react. No database; auth and progress are client-side (localStorage).
+- high-contrast white, black, and navy styling
+- large default text sizing for readability
+- simple layouts with generous spacing
+- strong focus states for keyboard users
+- large tap targets and clear button states
+- responsive media for desktop, tablet, and mobile
+
+## Project notes
+
+- The app uses the Next.js App Router.
+- Styling is built with Tailwind CSS and global CSS overrides.
+- Icons come from `lucide-react`.
+- Session data, auth state, and training progress are stored in a local SQLite database via `better-sqlite3`.
+- The local database file is created as `golden-shield.db` in the project root when the app runs.
+
+## Main paths
+
+- `/` - home
+- `/signin` - sign in
+- `/training` - training dashboard
+- `/training/[slug]` - module detail pages
+- `/plan` - printable plan
+- `/glossary` - glossary
+- `/help` - help
+- `/resources` - resources
