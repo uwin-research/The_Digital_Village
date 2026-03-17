@@ -15,7 +15,7 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const MESSAGE_A = {
   title: "Canada Post Alert",
@@ -41,6 +41,14 @@ const PASSPHRASE_EXAMPLES = [
   "Piano-Window-Meadow-72",
 ] as const;
 
+const MODULE_2_SECTION_3_SLIDES = [
+  "/module-2-section-3-slides/1.jpg",
+  "/module-2-section-3-slides/2.jpg",
+  "/module-2-section-3-slides/3.jpg",
+  "/module-2-section-3-slides/4.jpg",
+  "/module-2-section-3-slides/5.jpg",
+] as const;
+
 export default function ModulePage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -52,6 +60,9 @@ export default function ModulePage() {
   const [suspiciousSubmitted, setSuspiciousSubmitted] = useState(false);
   const [markedComplete, setMarkedComplete] = useState(false);
   const [passphraseIndex, setPassphraseIndex] = useState(0);
+  const [module2Section3SlideIndex, setModule2Section3SlideIndex] = useState(0);
+  const [isSlideFullscreen, setIsSlideFullscreen] = useState(false);
+  const module2Section3SlideRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +93,21 @@ export default function ModulePage() {
     return () => { cancelled = true; };
   }, [slug]);
 
+  useEffect(() => {
+    setModule2Section3SlideIndex(0);
+  }, [slug]);
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsSlideFullscreen(document.fullscreenElement === module2Section3SlideRef.current);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   const handleUpdatesAnswer = useCallback((answer: "yes" | "no") => {
     void setUpdatesAnswer(answer);
     setUpdatesAnswerState(answer);
@@ -91,6 +117,96 @@ export default function ModulePage() {
     void setSuspiciousAnswer(choice);
     setSuspiciousChoice(choice);
     setSuspiciousSubmitted(true);
+  }, []);
+
+  const handleToggleSlideFullscreen = useCallback(async () => {
+    const slideContainer = module2Section3SlideRef.current;
+    if (!slideContainer) return;
+
+    if (document.fullscreenElement === slideContainer) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await slideContainer.requestFullscreen();
+  }, []);
+
+  const handlePrintSlides = useCallback(() => {
+    const printWindow = window.open("", "_blank", "noopener,noreferrer,width=1200,height=900");
+    if (!printWindow) return;
+
+    const slideMarkup = MODULE_2_SECTION_3_SLIDES.map(
+      (slideSrc, index) => `
+        <section class="print-slide">
+          <div class="print-slide-inner">
+            <img src="${new URL(slideSrc, window.location.origin).toString()}" alt="Module 2 Section 3 slide ${index + 1}" />
+          </div>
+        </section>
+      `
+    ).join("");
+
+    printWindow.document.write(`<!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <title>Module 2 Section 3 Slides</title>
+          <style>
+            @page {
+              margin: 0.5in;
+              size: portrait;
+            }
+
+            * {
+              box-sizing: border-box;
+            }
+
+            body {
+              margin: 0;
+              font-family: Arial, sans-serif;
+              background: #ffffff;
+            }
+
+            .print-slide {
+              page-break-after: always;
+              break-after: page;
+              min-height: 100vh;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 0.25in;
+            }
+
+            .print-slide:last-child {
+              page-break-after: auto;
+              break-after: auto;
+            }
+
+            .print-slide-inner {
+              width: 100%;
+            }
+
+            img {
+              display: block;
+              width: 100%;
+              max-width: 100%;
+              height: auto;
+              border: 2px solid #000000;
+            }
+          </style>
+        </head>
+        <body>
+          ${slideMarkup}
+          <script>
+            window.addEventListener("load", () => {
+              setTimeout(() => {
+                window.focus();
+                window.print();
+              }, 250);
+            });
+          </script>
+        </body>
+      </html>`);
+    printWindow.document.close();
   }, []);
 
   const handleMarkComplete = useCallback(
@@ -213,9 +329,10 @@ export default function ModulePage() {
     );
   const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
   const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
+  const pageWidthClass = isFirstLineOfDefence ? "max-w-7xl" : showWideLayout ? "max-w-5xl" : "max-w-3xl";
 
   return (
-    <div className={`mx-auto px-4 py-8 ${showWideLayout ? "max-w-5xl" : "max-w-3xl"}`}>
+    <div className={`mx-auto px-4 py-8 ${pageWidthClass}`}>
       <Link
         href="/training"
         className="mb-6 inline-flex items-center gap-2 text-base font-medium text-black hover:text-[#000080] focus:outline-none focus:ring-2 focus:ring-[#000080] rounded"
@@ -391,52 +508,100 @@ export default function ModulePage() {
                   </>
                 ) : isFirstLineOfDefence && sectionIdx === 2 ? (
                   (() => {
-                    const tipBlock = section.blocks.find(
-                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Tip:")
-                    );
-                    const stepBlocks = section.blocks.filter(
-                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && !block.text.startsWith("Tip:")
-                    );
-                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+                    const videoBlock = section.blocks.find((block) => block.type === "media");
+                    const videoSlot = videoBlock?.type === "media" ? videoBlock.slot : null;
+                    const currentSlide = MODULE_2_SECTION_3_SLIDES[module2Section3SlideIndex];
 
                     return (
-                      <>
-                        <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
-                          <div className="space-y-4">
-                            <p className="text-[28px] font-bold leading-[1.6] text-black">
-                              {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                            </p>
-                            <ol className="ml-6 list-decimal space-y-3">
-                              {stepBlocks.map((block, blockIdx) => (
-                                <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                                  {renderTextBlock(block.text)}
-                                </li>
-                              ))}
-                            </ol>
-                            {tipBlock && (
-                              <div className="relative mt-28 max-w-[420px] pt-20">
-                                <aside className="absolute left-[76%] -top-[5.5rem] z-10 w-full max-w-[260px] -translate-x-1/2 rounded-[2rem] bg-[#d0d0d0] px-6 py-4 text-[22px] font-medium leading-[1.6] text-black shadow-sm md:left-[108%] md:-top-[4.5rem] shadow-sm">
-                                  <span className="absolute -bottom-4 left-6 h-8 w-8 rounded-full bg-[#d0d0d0]" aria-hidden />
-                                  <span className="absolute -bottom-9 left-3 h-5 w-5 rounded-full bg-[#d0d0d0]" aria-hidden />
-                                  {renderTextBlock(tipBlock.text)}
-                                </aside>
-                                <Image
-                                  src="/module-2-passcode-thinking-v2.png"
-                                  alt="Elena thinking while looking at her phone."
-                                  width={640}
-                                  height={400}
-                                  className="h-auto w-full"
-                                />
+                      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start">
+                        <div className="space-y-4">
+                          <div
+                            ref={module2Section3SlideRef}
+                            className={`rounded-2xl bg-[#f5f5f5] p-2 sm:p-3 ${
+                              isSlideFullscreen ? "h-full overflow-auto p-4 sm:p-6" : ""
+                            }`}
+                          >
+                            <div className="mb-4">
+                              {!isSlideFullscreen && (
+                                <div className="flex flex-wrap gap-4">
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleToggleSlideFullscreen()}
+                                    className="min-h-16 rounded-xl border-2 border-black bg-[#000080] px-6 py-4 text-[22px] font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                                  >
+                                    VIEW FULL SCREEN
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={handlePrintSlides}
+                                    className="min-h-16 rounded-xl border-2 border-black bg-white px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                                  >
+                                    PRINT SLIDES
+                                  </button>
+                                </div>
+                              )}
+                              <div className="mt-4 flex items-center justify-between gap-4">
+                                <p className="text-[24px] font-bold text-[#000080]">
+                                  Slide {module2Section3SlideIndex + 1} of {MODULE_2_SECTION_3_SLIDES.length}
+                                </p>
                               </div>
-                            )}
-                          </div>
-                          <div className="space-y-4">
-                            {mediaBlocks.map((block, blockIdx) => (
-                              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-                            ))}
+                            </div>
+                            <div className="overflow-hidden rounded-xl border-2 border-black bg-white">
+                              <Image
+                                src={currentSlide}
+                                alt={`Module 2 Section 3 slide ${module2Section3SlideIndex + 1}`}
+                                width={1600}
+                                height={900}
+                                className="h-auto w-full"
+                                priority={module2Section3SlideIndex === 0}
+                              />
+                            </div>
+                            <div className="mt-4 flex items-center justify-between gap-4">
+                              <button
+                                type="button"
+                                onClick={() => setModule2Section3SlideIndex((current) => Math.max(current - 1, 0))}
+                                disabled={module2Section3SlideIndex === 0}
+                                className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-black px-6 py-4 text-[22px] font-bold text-white transition disabled:cursor-not-allowed disabled:bg-[#777777]"
+                              >
+                                BACK
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setModule2Section3SlideIndex((current) =>
+                                    Math.min(current + 1, MODULE_2_SECTION_3_SLIDES.length - 1)
+                                  )
+                                }
+                                disabled={module2Section3SlideIndex === MODULE_2_SECTION_3_SLIDES.length - 1}
+                                className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:bg-[#d0d0d0]"
+                              >
+                                NEXT
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </>
+                        <aside className="xl:sticky xl:top-6">
+                          <div className="rounded-2xl bg-white p-4 shadow-sm">
+                            {videoSlot?.label && (
+                              <p className="mb-3 text-base font-semibold text-[#000080]">{videoSlot.label}</p>
+                            )}
+                            {videoSlot?.src && videoSlot.type === "video" && (
+                              <video
+                                controls
+                                preload="metadata"
+                                className="w-full rounded-lg border-2 border-black bg-black"
+                                aria-label={videoSlot.alt || videoSlot.label || "Training video"}
+                              >
+                                <source src={videoSlot.src} type="video/mp4" />
+                                Your browser does not support the video tag.
+                              </video>
+                            )}
+                            {videoSlot?.description && (
+                              <p className="mt-3 text-sm text-black">{videoSlot.description}</p>
+                            )}
+                          </div>
+                        </aside>
+                      </div>
                     );
                   })()
                 ) : isFirstLineOfDefence && sectionIdx === 3 ? (
