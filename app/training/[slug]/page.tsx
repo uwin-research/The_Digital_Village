@@ -517,24 +517,33 @@ export default function ModulePage() {
                         <div className="space-y-4">
                           <div
                             ref={module2Section3SlideRef}
-                            className={`rounded-2xl bg-[#f5f5f5] p-2 sm:p-3 ${
+                            className={`relative rounded-2xl bg-[#f5f5f5] p-2 sm:p-3 ${
                               isSlideFullscreen ? "h-full overflow-auto p-4 sm:p-6" : ""
                             }`}
                           >
+                            {isSlideFullscreen && (
+                              <button
+                                type="button"
+                                onClick={() => void handleToggleSlideFullscreen()}
+                                className="absolute right-4 top-4 z-10 rounded-lg border-2 border-black bg-[#000080] px-3 py-1 text-sm font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                              >
+                                EXIT
+                              </button>
+                            )}
                             <div className="mb-4">
                               {!isSlideFullscreen && (
                                 <div className="flex flex-wrap gap-4">
                                   <button
                                     type="button"
                                     onClick={() => void handleToggleSlideFullscreen()}
-                                    className="min-h-16 rounded-xl border-2 border-black bg-[#000080] px-6 py-4 text-[22px] font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                                    className="min-h-12 rounded-xl border-2 border-black bg-[#000080] px-4 py-2 text-lg font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
                                   >
                                     VIEW FULL SCREEN
                                   </button>
                                   <button
                                     type="button"
                                     onClick={handlePrintSlides}
-                                    className="min-h-16 rounded-xl border-2 border-black bg-white px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                                    className="min-h-12 rounded-xl border-2 border-black bg-white px-4 py-2 text-lg font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
                                   >
                                     PRINT SLIDES
                                   </button>
