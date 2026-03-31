@@ -720,31 +720,35 @@ export const MODULES: ModuleData[] = [
           },
           {
             type: "text",
-            text: "Open Settings: Tap the Grey Gear icon.",
+            text: "Path: Settings → [Your Name] → Sign-In & Security → Two-Factor Authentication",
           },
           {
             type: "text",
-            text: "Your Profile: Tap your Apple ID name at the very top of the list.",
+            text: "Open Settings: Go to the Settings app on your iPhone.",
           },
           {
             type: "text",
-            text: "Sign-In Settings: Select Sign-In & Security.",
+            text: "Access Your Apple Account: Tap your name at the top, then select Sign-In & Security.",
           },
           {
             type: "text",
-            text: "The Safety Switch: Tap Turn On Two-Factor Authentication.",
+            text: "Turn On Two-Factor Authentication: Tap Two-Factor Authentication.",
           },
           {
             type: "text",
-            text: "Confirm: Tap Continue.",
+            text: "Add a Trusted Phone Number: Enter a trusted phone number where you will receive verification codes, then tap Next.",
           },
           {
             type: "text",
-            text: "Your Phone Number: Enter the phone number where you want to receive your codes. Choose Text Message (this is usually easiest for Sam).",
+            text: "Receive Verification Code: A verification code will be sent to your trusted phone number.",
           },
           {
             type: "text",
-            text: "Final Check: Tap Next and enter the 6-digit code Apple just sent to your phone to finish the setup.",
+            text: "Enter the Verification Code: Enter the code on your iPhone to verify.",
+          },
+          {
+            type: "text",
+            text: "Setup Complete: Two-factor authentication is now turned on, and your iPhone is set as a trusted device.",
           },
           {
             type: "media",
@@ -752,6 +756,7 @@ export const MODULES: ModuleData[] = [
               type: "video",
               description: "A slow-paced screen recording of an iPhone. A finger taps the name at the top, selects Sign-In & Security, and toggles Two-Factor Authentication to On. A 1.5-second pause shows the 6-digit code arriving as a notification.",
               label: "Video Guide: Turn On 2FA for Apple ID",
+              alt: "Video guide showing how to turn on two-factor authentication for Apple ID on an iPhone.",
             },
           },
         ],

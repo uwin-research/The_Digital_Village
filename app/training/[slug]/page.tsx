@@ -727,6 +727,60 @@ export default function ModulePage() {
                   })()
                 ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
                   renderFirstLineOfDefenceSplitSection(section)
+                ) : isTwoFactorAuth && sectionIdx === 1 ? (
+                  (() => {
+                    const pathBlock = section.blocks.find(
+                      (block, idx): block is ContentBlock =>
+                        idx > 0 && block.type === "text" && block.text.startsWith("Path:")
+                    );
+                    const stepBlocks = section.blocks.filter(
+                      (block, idx): block is ContentBlock =>
+                        idx > 0 &&
+                        block.type === "text" &&
+                        !block.text.startsWith("Path:")
+                    );
+                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+
+                    return (
+                      <div
+                        className={
+                          mediaBlocks.length > 0
+                            ? "grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start"
+                            : "space-y-4"
+                        }
+                      >
+                        <div className="space-y-4">
+                          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
+                            {section.title}
+                          </h2>
+                          <p className="text-[28px] font-bold leading-[1.6] text-black">
+                            {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                          </p>
+                          {pathBlock && (
+                            <p className="text-[24px] leading-[1.7] text-black">
+                              {renderTextBlock(pathBlock.text)}
+                            </p>
+                          )}
+                          <ol className="ml-6 list-decimal space-y-3">
+                            {stepBlocks.map((block, blockIdx) => (
+                              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                                {renderTextBlock(block.text)}
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                        {mediaBlocks.length > 0 && (
+                          <aside>
+                            <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+                              {mediaBlocks.map((block, blockIdx) => (
+                                <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                              ))}
+                            </div>
+                          </aside>
+                        )}
+                      </div>
+                    );
+                  })()
                 ) : isTwoFactorAuth ? (
                   renderTwoFactorAuthSection(section)
                 ) : isPasswordsLoggingIn && sectionIdx === 0 ? (
