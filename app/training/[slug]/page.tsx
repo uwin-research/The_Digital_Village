@@ -34,13 +34,6 @@ const SUSPICIOUS_OPTIONS = [
   "Neither is suspicious",
 ] as const;
 
-const PASSPHRASE_EXAMPLES = [
-  "Bicycle-Apple-Garden-26",
-  "Lantern-River-Maple-83",
-  "Library-Teacup-Sunrise-41",
-  "Piano-Window-Meadow-72",
-] as const;
-
 const MODULE_2_SECTION_3_SLIDES = [
   "/module-2-section-3-slides/1.jpg",
   "/module-2-section-3-slides/2.jpg",
@@ -59,7 +52,6 @@ export default function ModulePage() {
   const [suspiciousChoice, setSuspiciousChoice] = useState<string | null>(null);
   const [suspiciousSubmitted, setSuspiciousSubmitted] = useState(false);
   const [markedComplete, setMarkedComplete] = useState(false);
-  const [passphraseIndex, setPassphraseIndex] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -711,24 +703,6 @@ export default function ModulePage() {
                         <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
                       )
                     )}
-                    <div className="rounded-xl border-2 border-black bg-[#fffdf2] p-6">
-                      <h3 className="mb-3 text-[24px] font-bold text-[#000080]">Passphrase Generator</h3>
-                      <p className="mb-4 text-[24px] leading-[1.7] text-black">
-                        Click the button to see an example of a strong, word-based password.
-                      </p>
-                      <div className="rounded-lg border-2 border-black bg-white p-4">
-                        <p className="text-[24px] font-bold text-black break-words">
-                          {PASSPHRASE_EXAMPLES[passphraseIndex]}
-                        </p>
-                      </div>
-              <button
-                type="button"
-                        onClick={() => setPassphraseIndex((current) => (current + 1) % PASSPHRASE_EXAMPLES.length)}
-                        className="mt-4 rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-lg font-semibold text-black hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
-                      >
-                        Show another example
-              </button>
-                    </div>
                   </>
                 ) : isPasswordsLoggingIn && sectionIdx === 4 ? (
                   <>
