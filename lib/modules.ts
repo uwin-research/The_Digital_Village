@@ -167,10 +167,10 @@ export const MODULES: ModuleData[] = [
       { id: "2", text: "Choosing Your Key: Compare PIN, Pattern, and Password lock types for security and convenience." },
       { id: "3", text: "Task: Setting Up Your Passcode (iPhone): Turn on a 6-digit passcode and avoid weak codes like 123456 or your birth year." },
       { id: "4", text: "Biometrics: The Magic Touch: Set up Face ID so your phone can recognize your face quickly and safely." },
-      { id: "5", text: "Medical ID: Add emergency health details and trusted contacts that helpers can see without your passcode." },
-      { id: "6", text: "Emergency SOS: Set up the fast-call shortcut so your phone can call for help quickly." },
-      { id: "7", text: "How to Use Your Plan: Practice how to open Medical ID and trigger Emergency SOS before a real emergency." },
-      { id: "8", text: "The Safety Nap (Auto-Lock): Set Auto-Lock to 30 Seconds or 1 Minute so your phone protects itself when you forget." },
+      { id: "5", text: "The Safety Nap (Auto-Lock): Set Auto-Lock to 30 Seconds or 1 Minute so your phone protects itself when you forget." },
+      { id: "6", text: "Medical ID: Add emergency health details and trusted contacts that helpers can see without your passcode." },
+      { id: "7", text: "Emergency SOS: Set up the fast-call shortcut so your phone can call for help quickly." },
+      { id: "8", text: "How to Use Your Plan: Practice how to open Medical ID and trigger Emergency SOS before a real emergency." },
     ],
     sections: [
       {
@@ -228,23 +228,27 @@ export const MODULES: ModuleData[] = [
         blocks: [
           {
             type: "text",
-            text: "Follow these steps to install your Digital Deadbolt.",
+            text: "For Elena, setting a passcode is like locking the front door of her home. It gives her peace of mind that if her phone is lost or left behind, her private information stays protected.",
           },
           {
             type: "text",
-            text: "Open Settings",
+            text: "Path: Settings → Face ID & Passcode → Turn Passcode On",
           },
           {
             type: "text",
-            text: "Tap Face ID & Passcode / Touch ID & Passcode",
+            text: "Open Settings: Open the Settings app on your device.",
           },
           {
             type: "text",
-            text: "Tap Turn Passcode On",
+            text: "Go to Face ID & Passcode: Scroll down and tap Face ID & Passcode.",
           },
           {
             type: "text",
-            text: "Choose a 6-digit passcode",
+            text: "Turn Passcode On: Tap on Turn Passcode On to begin setting up your passcode.",
+          },
+          {
+            type: "text",
+            text: "Create a Passcode: Enter a 6-digit passcode of your choice when prompted.",
           },
           {
             type: "text",
@@ -267,23 +271,27 @@ export const MODULES: ModuleData[] = [
         blocks: [
           {
             type: "text",
-            text: "Biometrics use your unique body features, like your face or fingerprint, to unlock the phone instantly.",
+            text: "For Elena, biometrics are the magic touch: her phone can recognize her face or fingerprint so she can unlock it quickly and safely.",
           },
           {
             type: "text",
-            text: "Open Settings",
+            text: "Path: Settings → Face ID & Passcode → Reset Face ID → Set up Face ID",
           },
           {
             type: "text",
-            text: "Tap Face ID & Passcode",
+            text: "Open Settings: Open the Settings app on your device.",
           },
           {
             type: "text",
-            text: "Tap Reset Face ID > Set up",
+            text: "Go to Face ID & Passcode: Scroll down and tap Face ID & Passcode.",
           },
           {
             type: "text",
-            text: "Follow the on-screen scan",
+            text: "Reset Face ID: Tap Reset Face ID, then select Set Up Face ID.",
+          },
+          {
+            type: "text",
+            text: "Follow the On-Screen Instructions: Follow the instructions on the screen to scan your face and complete the setup.",
           },
           {
             type: "media",
@@ -298,7 +306,42 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 5: Medical ID: Your Emergency Lifeline",
+        title: "Section 5: The Safety Nap (Auto-Lock)",
+        blocks: [
+          {
+            type: "text",
+            text: "For Elena, Auto-Lock is like a safety nap for her phone. Even if she forgets to lock it herself, the phone protects her private information after a short time.",
+          },
+          {
+            type: "text",
+            text: "Path: Settings → Display & Brightness → Auto-Lock",
+          },
+          {
+            type: "text",
+            text: "Open Display & Brightness Settings: Go to Settings, then tap Display & Brightness.",
+          },
+          {
+            type: "text",
+            text: "Open Auto-Lock Settings: Tap on Auto-Lock.",
+          },
+          {
+            type: "text",
+            text: "Choose Auto-Lock Time: Select 30 Seconds or 1 Minute as your preferred screen lock time.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "Video guide showing how to set Auto-Lock on an iPhone.",
+              label: "Video Guide: Set Auto-Lock",
+              alt: "Video guide showing the Auto-Lock settings steps on an iPhone.",
+              src: "/module-2-auto-lock-guide.mp4",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 6: Medical ID: Your Emergency Lifeline",
         blocks: [
           {
             type: "text",
@@ -349,7 +392,7 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 6: Emergency SOS: The Fast-Call Button",
+        title: "Section 7: Emergency SOS: The Fast-Call Button",
         blocks: [
           {
             type: "text",
@@ -392,7 +435,7 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 7: How to Use Your Plan (The What If Drill)",
+        title: "Section 8: How to Use Your Plan (The What If Drill)",
         blocks: [
           {
             type: "text",
@@ -405,37 +448,6 @@ export const MODULES: ModuleData[] = [
           {
             type: "text",
             text: "To Call for Help: Use the Squeeze or 5-Tap method you chose in the settings above. A loud siren will sound, and a countdown will begin before calling for help.",
-          },
-        ],
-      },
-      {
-        title: "Section 8: The Safety Nap (Auto-Lock)",
-        blocks: [
-          {
-            type: "text",
-            text: "Ensure your phone locks itself if you forget to.",
-          },
-          {
-            type: "text",
-            text: "Go to Settings > Display & Brightness.",
-          },
-          {
-            type: "text",
-            text: "Tap Auto-Lock.",
-          },
-          {
-            type: "text",
-            text: "Select 30 Seconds or 1 Minute.",
-          },
-          {
-            type: "media",
-            slot: {
-              type: "video",
-              description: "Video guide showing how to set Auto-Lock on an iPhone.",
-              label: "Video Guide: Set Auto-Lock",
-              alt: "Video guide showing the Auto-Lock settings steps on an iPhone.",
-              src: "/module-2-auto-lock-guide.mp4",
-            },
           },
         ],
       },

@@ -41,6 +41,14 @@ const PASSPHRASE_EXAMPLES = [
   "Piano-Window-Meadow-72",
 ] as const;
 
+const MODULE_2_SECTION_3_SLIDES = [
+  "/module-2-section-3-slides/1.jpg",
+  "/module-2-section-3-slides/2.jpg",
+  "/module-2-section-3-slides/3.jpg",
+  "/module-2-section-3-slides/4.jpg",
+  "/module-2-section-3-slides/5.jpg",
+] as const;
+
 export default function ModulePage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -92,6 +100,122 @@ export default function ModulePage() {
     void setSuspiciousAnswer(choice);
     setSuspiciousChoice(choice);
     setSuspiciousSubmitted(true);
+  }, []);
+
+  const handlePrintSection3Slides = useCallback(() => {
+    const printFrame = document.createElement("iframe");
+    printFrame.setAttribute("aria-hidden", "true");
+    printFrame.style.position = "fixed";
+    printFrame.style.right = "0";
+    printFrame.style.bottom = "0";
+    printFrame.style.width = "0";
+    printFrame.style.height = "0";
+    printFrame.style.border = "0";
+    document.body.appendChild(printFrame);
+
+    const printWindow = printFrame.contentWindow;
+    const printDocument = printWindow?.document;
+    if (!printWindow || !printDocument) {
+      printFrame.remove();
+      return;
+    }
+
+    const slideMarkup = MODULE_2_SECTION_3_SLIDES.map(
+      (slideSrc, index) => `
+        <section class="print-slide">
+          <img src="${new URL(slideSrc, window.location.origin).toString()}" alt="Module 2 Section 3 slide ${index + 1}" />
+        </section>
+      `
+    ).join("");
+
+    printDocument.open();
+    printDocument.write(`<!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="utf-8" />
+          <title>Section 3 Slides</title>
+          <style>
+            @page {
+              size: landscape;
+              margin: 0;
+            }
+
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+            }
+
+            .print-slide {
+              width: 100%;
+              margin: 0;
+              padding: 0;
+              line-height: 0;
+              break-inside: avoid;
+              page-break-inside: avoid;
+            }
+
+            .print-slide + .print-slide {
+              break-before: page;
+              page-break-before: always;
+            }
+
+            img {
+              display: block;
+              width: 100%;
+              max-width: none;
+              height: auto;
+              margin: 0;
+            }
+          </style>
+        </head>
+        <body>
+          ${slideMarkup}
+        </body>
+      </html>`);
+    printDocument.close();
+
+    const images = Array.from(printDocument.images);
+    const cleanup = () => {
+      window.setTimeout(() => {
+        printFrame.remove();
+      }, 300);
+    };
+
+    const startPrint = () => {
+      const handleAfterPrint = () => {
+        printWindow.removeEventListener("afterprint", handleAfterPrint);
+        cleanup();
+      };
+
+      printWindow.addEventListener("afterprint", handleAfterPrint);
+      printWindow.focus();
+      printWindow.print();
+      window.setTimeout(cleanup, 2000);
+    };
+
+    if (images.length === 0) {
+      startPrint();
+      return;
+    }
+
+    let loadedImages = 0;
+    const handleImageReady = () => {
+      loadedImages += 1;
+      if (loadedImages === images.length) {
+        startPrint();
+      }
+    };
+
+    images.forEach((image) => {
+      if (image.complete) {
+        handleImageReady();
+        return;
+      }
+
+      image.addEventListener("load", handleImageReady, { once: true });
+      image.addEventListener("error", handleImageReady, { once: true });
+    });
   }, []);
 
   const handleMarkComplete = useCallback(
@@ -148,6 +272,24 @@ export default function ModulePage() {
       return text;
     }
 
+    const isStepHeading = /^Step \d+:/i.test(text);
+    const secondColonIndex = isStepHeading ? text.indexOf(":", colonIndex + 1) : -1;
+
+    if (secondColonIndex !== -1) {
+      const label = text.slice(0, secondColonIndex).trim();
+      const remainder = text.slice(secondColonIndex + 1).trim();
+
+      if (!label || !remainder) {
+        return text;
+      }
+
+      return (
+        <>
+          <strong>{label}:</strong> {remainder}
+        </>
+      );
+    }
+
     const label = text.slice(0, colonIndex).trim();
     const remainder = text.slice(colonIndex + 1).trim();
 
@@ -172,9 +314,6 @@ export default function ModulePage() {
       />
     ) : slot.src && slot.type === "video" ? (
       <div className="space-y-3">
-        {slot.label && (
-          <p className="text-base font-semibold text-[#000080]">{slot.label}</p>
-        )}
         <video
           controls
           preload="metadata"
@@ -211,13 +350,17 @@ export default function ModulePage() {
     );
   const renderFirstLineOfDefenceSplitSection = (section: typeof moduleData.sections[number]) => {
     const introText = section.blocks[0]?.type === "text" ? section.blocks[0].text : "";
+    const pathBlocks = section.blocks.filter(
+      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Path:")
+    );
     const stepBlocks = section.blocks.filter(
-      (block, idx): block is ContentBlock => idx > 0 && block.type === "text"
+      (block, idx): block is ContentBlock =>
+        idx > 0 && block.type === "text" && !block.text.startsWith("Path:")
     );
     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
 
     return (
-      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start">
+      <div className={mediaBlocks.length > 0 ? "grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start" : "space-y-4"}>
         <div className="space-y-4">
           <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
             {section.title}
@@ -227,6 +370,11 @@ export default function ModulePage() {
               {introText}
             </p>
           )}
+          {pathBlocks.map((block, blockIdx) => (
+            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+              {renderTextBlock(block.text)}
+            </p>
+          ))}
           {stepBlocks.length > 0 && (
             <ol className="ml-6 list-decimal space-y-4">
               {stepBlocks.map((block, blockIdx) => (
@@ -237,13 +385,15 @@ export default function ModulePage() {
             </ol>
           )}
         </div>
-        <aside className="xl:sticky xl:top-6">
-          <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
-            {mediaBlocks.map((block, blockIdx) => (
-              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-            ))}
-          </div>
-        </aside>
+        {mediaBlocks.length > 0 && (
+          <aside className="xl:sticky xl:top-6">
+            <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+              {mediaBlocks.map((block, blockIdx) => (
+                <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+              ))}
+            </div>
+          </aside>
+        )}
       </div>
     );
   };
@@ -388,7 +538,7 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              {!(isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx)) && (
+              {!(isFirstLineOfDefence && [2, 3, 4, 5, 6, 7].includes(sectionIdx)) && (
                 <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
                   {section.title}
                 </h2>
@@ -433,17 +583,32 @@ export default function ModulePage() {
                     const tipBlock = section.blocks.find(
                       (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Tip:")
                     );
+                    const pathBlock = section.blocks.find(
+                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Path:")
+                    );
                     const stepBlocks = section.blocks.filter(
-                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && !block.text.startsWith("Tip:")
+                      (block, idx): block is ContentBlock =>
+                        idx > 0 &&
+                        block.type === "text" &&
+                        !block.text.startsWith("Tip:") &&
+                        !block.text.startsWith("Path:")
                     );
                     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
 
                     return (
                       <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
                         <div className="space-y-4">
+                          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
+                            {section.title}
+                          </h2>
                           <p className="text-[28px] font-bold leading-[1.6] text-black">
                             {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
                           </p>
+                          {pathBlock && (
+                            <p className="text-[24px] leading-[1.7] text-black">
+                              {renderTextBlock(pathBlock.text)}
+                            </p>
+                          )}
                           <ol className="ml-6 list-decimal space-y-3">
                             {stepBlocks.map((block, blockIdx) => (
                               <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
@@ -451,9 +616,16 @@ export default function ModulePage() {
                               </li>
                             ))}
                           </ol>
+                          <button
+                            type="button"
+                            onClick={handlePrintSection3Slides}
+                            className="min-h-12 rounded-xl border-2 border-black bg-white px-4 py-2 text-lg font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                          >
+                            PRINT SLIDES
+                          </button>
                           {tipBlock && (
-                            <div className="relative mt-28 max-w-[420px] pt-20">
-                              <aside className="absolute left-[76%] -top-[5.5rem] z-10 w-full max-w-[260px] -translate-x-1/2 rounded-[2rem] bg-[#d0d0d0] px-6 py-4 text-[22px] font-medium leading-[1.6] text-black shadow-sm md:left-[108%] md:-top-[4.5rem]">
+                            <div className="relative mt-2 mr-40 ml-auto max-w-[320px] pt-8">
+                              <aside className="absolute left-[78%] -top-[5rem] z-10 w-full max-w-[240px] -translate-x-1/2 rounded-[2rem] bg-[#d0d0d0] px-5 py-3 text-[20px] font-medium leading-[1.5] text-black shadow-sm md:left-[98%] md:-top-[4.25rem]">
                                 <span className="absolute -bottom-4 left-6 h-8 w-8 rounded-full bg-[#d0d0d0]" aria-hidden />
                                 <span className="absolute -bottom-9 left-3 h-5 w-5 rounded-full bg-[#d0d0d0]" aria-hidden />
                                 {renderTextBlock(tipBlock.text)}
@@ -461,8 +633,8 @@ export default function ModulePage() {
                               <Image
                                 src="/module-2-passcode-thinking-v2.png"
                                 alt="Elena thinking while looking at her phone."
-                                width={640}
-                                height={400}
+                                width={420}
+                                height={263}
                                 className="h-auto w-full"
                               />
                             </div>
