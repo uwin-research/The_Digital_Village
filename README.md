@@ -13,53 +13,70 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+Other scripts:
+
+```bash
+npm run build   # production build (uses webpack, same as dev)
+npm run start   # run production server after build
+npm run lint    # ESLint
+```
+
 ## What the app includes
 
-- **Home**: a full-screen responsive hero and a simple entry point into training
+- **Home**: full-screen responsive hero and entry into training
 - **Sign in**: lightweight email sign-in that gates training content
-- **Training dashboard**: 9 guided modules with progress tracking and completion badges
-- **Module pages**: large-type lesson pages with scenarios, step lists, media slots, videos, and custom layouts for key modules
-- **My Plan**: a printable checklist view of module progress
+- **Training dashboard**: eight guided modules with progress tracking and completion badges
+- **Module pages**: large-type lessons with scenarios, steps, images, videos, and tailored layouts (for example, Module 2 split columns for text and media; printable slide flow where configured)
+- **My Plan**: printable checklist view of module progress
 - **Glossary**: plain-language definitions for security terms
-- **Help**: getting-started guidance and common troubleshooting tips
+- **Help**: getting-started guidance and troubleshooting tips
 - **Resources**: quick-reference safety reminders
 
-## Training modules
+## Training modules (dashboard)
 
-1. Getting Comfortable with Your Device
-2. Your First Line of Defence
-3. Passwords & Logging in Safely
-4. Two-Factor Authentication (2FA)
-5. App Permissions & Safety
-6. Software Updates & Habits
-7. Recognising Scams & Phishing
-8. Public Wi-Fi & Safe Browsing
-9. Caches, Cookies & Digital Clutter
+These are the modules learners see on `/training`, in order:
+
+1. Getting Comfortable with Your Device  
+2. Your First Line of Defence  
+3. Two-Factor Authentication (2FA)  
+4. App Permissions & Safety  
+5. Software Updates & Habits  
+6. Recognising Scams & Phishing  
+7. Public Wi-Fi & Safe Browsing  
+8. Caches, Cookies & Digital Clutter  
+
+Lesson titles, copy, and media paths are defined in `lib/modules.ts`. Slugs on `/training/[slug]` match each module’s `slug` field there.
 
 ## Accessibility and design goals
 
-- high-contrast white, black, and navy styling
-- large default text sizing for readability
-- simple layouts with generous spacing
-- strong focus states for keyboard users
-- large tap targets and clear button states
-- responsive media for desktop, tablet, and mobile
+- High-contrast white, black, and navy styling  
+- Large default text sizing for readability  
+- Simple layouts with generous spacing  
+- Strong focus states for keyboard users  
+- Large tap targets and clear button states  
+- Responsive layouts for desktop, tablet, and mobile  
+
+## Tech stack
+
+- **Next.js** 16 (App Router), **React** 19  
+- **Tailwind CSS** v4  
+- **lucide-react** for icons  
+- **better-sqlite3** for a local SQLite database (session, auth, and training progress)  
 
 ## Project notes
 
-- The app uses the Next.js App Router.
-- Styling is built with Tailwind CSS and global CSS overrides.
-- Icons come from `lucide-react`.
-- Session data, auth state, and training progress are stored in a local SQLite database via `better-sqlite3`.
-- The local database file is created as `golden-shield.db` in the project root when the app runs.
+- Dev and production builds use **webpack** (`next dev --webpack` / `next build --webpack`) as configured in `package.json`.
+- The local database file is created as **`golden-shield.db`** in the project root when the app runs (ignored by git).
 
-## Main paths
+## Main routes
 
-- `/` - home
-- `/signin` - sign in
-- `/training` - training dashboard
-- `/training/[slug]` - module detail pages
-- `/plan` - printable plan
-- `/glossary` - glossary
-- `/help` - help
-- `/resources` - resources
+| Path | Purpose |
+|------|---------|
+| `/` | Home |
+| `/signin` | Sign in |
+| `/training` | Training dashboard |
+| `/training/[slug]` | Module lesson pages |
+| `/plan` | Printable plan |
+| `/glossary` | Glossary |
+| `/help` | Help |
+| `/resources` | Resources |
