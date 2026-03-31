@@ -296,9 +296,6 @@ export default function ModulePage() {
           <source src={slot.src} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        {slot.description && (
-          <p className="text-sm text-black">{slot.description}</p>
-        )}
       </div>
     ) : (
       <div
@@ -324,6 +321,44 @@ export default function ModulePage() {
         </>
       </div>
     );
+  const renderFirstLineOfDefenceSplitSection = (section: typeof moduleData.sections[number]) => {
+    const introText = section.blocks[0]?.type === "text" ? section.blocks[0].text : "";
+    const stepBlocks = section.blocks.filter(
+      (block, idx): block is ContentBlock => idx > 0 && block.type === "text"
+    );
+    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+
+    return (
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start">
+        <div className="space-y-4">
+          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
+            {section.title}
+          </h2>
+          {introText && (
+            <p className="text-[28px] font-bold leading-[1.6] text-black">
+              {introText}
+            </p>
+          )}
+          {stepBlocks.length > 0 && (
+            <ol className="ml-6 list-decimal space-y-4">
+              {stepBlocks.map((block, blockIdx) => (
+                <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                  {renderTextBlock(block.text)}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+        <aside className="xl:sticky xl:top-6">
+          <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+            {mediaBlocks.map((block, blockIdx) => (
+              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+            ))}
+          </div>
+        </aside>
+      </div>
+    );
+  };
   const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
   const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
   const pageWidthClass = isFirstLineOfDefence ? "max-w-7xl" : showWideLayout ? "max-w-5xl" : "max-w-3xl";
@@ -465,9 +500,11 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
-                {section.title}
-              </h2>
+              {!(isFirstLineOfDefence && [2, 3, 4, 5, 6, 7].includes(sectionIdx)) && (
+                <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
+                  {section.title}
+                </h2>
+              )}
               <div className="space-y-6">
                 {isFirstLineOfDefence && sectionIdx === 1 ? (
                   <>
@@ -513,22 +550,16 @@ export default function ModulePage() {
                       <>
                         <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start">
                           <div className="space-y-4">
+                            <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
+                              {section.title}
+                            </h2>
                             <div
                               ref={module2Section3SlideRef}
                               className={`relative rounded-2xl bg-[#f5f5f5] p-2 sm:p-3 ${
-                                isSlideFullscreen ? "h-full overflow-auto p-4 sm:p-6" : ""
+                                isSlideFullscreen ? "h-full overflow-auto" : ""
                               }`}
                             >
-                              {isSlideFullscreen && (
-                                <button
-                                  type="button"
-                                  onClick={() => void handleToggleSlideFullscreen()}
-                                  className="absolute right-4 top-4 z-10 rounded-lg border-2 border-black bg-[#000080] px-3 py-1 text-sm font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
-                                >
-                                  EXIT
-                                </button>
-                              )}
-                              <div className="mb-4">
+                              <div className="mb-2">
                                 {!isSlideFullscreen && (
                                   <div className="flex flex-wrap gap-4">
                                     <button
@@ -548,10 +579,19 @@ export default function ModulePage() {
                                     </button>
                                   </div>
                                 )}
-                                <div className="mt-4 flex items-center justify-between gap-4">
+                                <div className={`${isSlideFullscreen ? "mt-0" : "mt-4"} flex items-center justify-between gap-4`}>
                                   <p className="text-[24px] font-bold text-[#000080]">
                                     Slide {module2Section3SlideIndex + 1} of {MODULE_2_SECTION_3_SLIDES.length}
                                   </p>
+                                  {isSlideFullscreen && (
+                                    <button
+                                      type="button"
+                                      onClick={() => void handleToggleSlideFullscreen()}
+                                      className="rounded-lg bg-[#c62828] px-3 py-1 text-sm font-bold text-white transition hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#c62828] focus:ring-offset-2"
+                                    >
+                                      EXIT
+                                    </button>
+                                  )}
                                 </div>
                               </div>
                               <div className="overflow-hidden rounded-xl border-2 border-black bg-white">
@@ -569,7 +609,7 @@ export default function ModulePage() {
                                   type="button"
                                   onClick={() => setModule2Section3SlideIndex((current) => Math.max(current - 1, 0))}
                                   disabled={module2Section3SlideIndex === 0}
-                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-black px-6 py-4 text-[22px] font-bold text-white transition disabled:cursor-not-allowed disabled:bg-[#777777]"
+                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:border-[#9a9a9a] disabled:bg-[#bdbdbd] disabled:text-[#5f5f5f]"
                                 >
                                   BACK
                                 </button>
@@ -581,7 +621,7 @@ export default function ModulePage() {
                                     )
                                   }
                                   disabled={module2Section3SlideIndex === MODULE_2_SECTION_3_SLIDES.length - 1}
-                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:bg-[#d0d0d0]"
+                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:border-[#9a9a9a] disabled:bg-[#bdbdbd] disabled:text-[#5f5f5f]"
                                 >
                                   NEXT
                                 </button>
@@ -604,117 +644,14 @@ export default function ModulePage() {
                                   Your browser does not support the video tag.
                                 </video>
                               )}
-                              {videoSlot?.description && (
-                                <p className="mt-3 text-sm text-black">{videoSlot.description}</p>
-                              )}
                             </div>
                           </aside>
                         </div>
                       </>
                     );
                   })()
-                ) : isFirstLineOfDefence && sectionIdx === 3 ? (
-                  <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
-                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                    </p>
-                    <ol className="ml-6 list-decimal space-y-4">
-                      {section.blocks.slice(1).map((block, blockIdx) =>
-                        block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                            {renderTextBlock(block.text)}
-                          </li>
-                        ) : (
-                          <li key={blockIdx} className="list-none">
-                            <div
-                              className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
-                              role={block.slot.src ? undefined : "img"}
-                              aria-label={block.slot.src ? undefined : block.slot.description}
-                            >
-                              {block.slot.src && block.slot.type === "video" ? (
-                                <div className="space-y-3">
-                                  {block.slot.label && (
-                                    <p className="text-base font-semibold text-[#000080]">{block.slot.label}</p>
-                                  )}
-                                  <video
-                                    controls
-                                    preload="metadata"
-                                    className="w-full rounded-lg border-2 border-black bg-black"
-                                    aria-label={block.slot.alt || block.slot.label || "Training video"}
-                                  >
-                                    <source src={block.slot.src} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                  {block.slot.description && (
-                                    <p className="text-sm text-black">{block.slot.description}</p>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {block.slot.type.toUpperCase()}]</p>
-                                  {block.slot.label && (
-                                    <p className="mb-2 text-sm font-medium text-black">Label: {block.slot.label}</p>
-                                  )}
-                                  <p className="mb-3 text-sm text-black">{block.slot.description}</p>
-                                </>
-                              )}
-                            </div>
-                          </li>
-                        )
-                      )}
-                    </ol>
-                  </>
-                ) : isFirstLineOfDefence && [4, 5, 6, 7].includes(sectionIdx) ? (
-                  <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
-                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                    </p>
-                    <ol className="ml-6 list-decimal space-y-4">
-                      {section.blocks.slice(1).map((block, blockIdx) =>
-                        block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                            {renderTextBlock(block.text)}
-                          </li>
-                        ) : (
-                          <li key={blockIdx} className="list-none">
-                            <div
-                              className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
-                              role={block.slot.src ? undefined : "img"}
-                              aria-label={block.slot.src ? undefined : block.slot.description}
-                            >
-                              {block.slot.src && block.slot.type === "video" ? (
-                                <div className="space-y-3">
-                                  {block.slot.label && (
-                                    <p className="text-base font-semibold text-[#000080]">{block.slot.label}</p>
-                                  )}
-                                  <video
-                                    controls
-                                    preload="metadata"
-                                    className="w-full rounded-lg border-2 border-black bg-black"
-                                    aria-label={block.slot.alt || block.slot.label || "Training video"}
-                                  >
-                                    <source src={block.slot.src} type="video/mp4" />
-                                    Your browser does not support the video tag.
-                                  </video>
-                                  {block.slot.description && (
-                                    <p className="text-sm text-black">{block.slot.description}</p>
-                                  )}
-                                </div>
-                              ) : (
-                                <>
-                                  <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {block.slot.type.toUpperCase()}]</p>
-                                  {block.slot.label && (
-                                    <p className="mb-2 text-sm font-medium text-black">Label: {block.slot.label}</p>
-                                  )}
-                                  <p className="mb-3 text-sm text-black">{block.slot.description}</p>
-                                </>
-                              )}
-                            </div>
-                          </li>
-                        )
-                      )}
-                    </ol>
-                  </>
+                ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
+                  renderFirstLineOfDefenceSplitSection(section)
                 ) : isTwoFactorAuth && sectionIdx === 1 ? (
                   <>
                     <p className="text-[28px] font-bold leading-[1.6] text-black">

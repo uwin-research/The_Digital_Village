@@ -288,9 +288,11 @@ export const MODULES: ModuleData[] = [
           {
             type: "media",
             slot: {
-              type: "animation",
-              description: "Animation of the Face ID circle movement used during setup.",
+              type: "video",
+              description: "Video guide showing the Face ID setup steps.",
               label: "Video Guide: Face ID Circle Movement",
+              alt: "Video guide showing how to set up Face ID on an iPhone.",
+              src: "/module-2-face-id-guide.mp4",
             },
           },
         ],
@@ -334,6 +336,16 @@ export const MODULES: ModuleData[] = [
             type: "text",
             text: "Save: Tap Done.",
           },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "Video guide showing how to set up Medical ID on an iPhone.",
+              label: "Video Guide: Set Up Medical ID",
+              alt: "Video guide showing the Medical ID setup steps on an iPhone.",
+              src: "/module-2-medical-id-guide.mp4",
+            },
+          },
         ],
       },
       {
@@ -366,6 +378,16 @@ export const MODULES: ModuleData[] = [
           {
             type: "text",
             text: "Automatic Alerts: Ensure your Emergency Contacts are listed here. After the 911 call ends, your phone will automatically text them your location.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "Video guide showing how to set up Emergency SOS on an iPhone.",
+              label: "Video Guide: Set Up Emergency SOS",
+              alt: "Video guide showing the Emergency SOS setup steps on an iPhone.",
+              src: "/module-2-sos-guide.mp4",
+            },
           },
         ],
       },
@@ -404,6 +426,16 @@ export const MODULES: ModuleData[] = [
           {
             type: "text",
             text: "Select 30 Seconds or 1 Minute.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description: "Video guide showing how to set Auto-Lock on an iPhone.",
+              label: "Video Guide: Set Auto-Lock",
+              alt: "Video guide showing the Auto-Lock settings steps on an iPhone.",
+              src: "/module-2-auto-lock-guide.mp4",
+            },
           },
         ],
       },
