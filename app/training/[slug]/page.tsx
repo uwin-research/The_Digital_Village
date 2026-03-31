@@ -15,7 +15,7 @@ import { ArrowLeft, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 const MESSAGE_A = {
   title: "Canada Post Alert",
@@ -41,14 +41,6 @@ const PASSPHRASE_EXAMPLES = [
   "Piano-Window-Meadow-72",
 ] as const;
 
-const MODULE_2_SECTION_3_SLIDES = [
-  "/module-2-section-3-slides/1.jpg",
-  "/module-2-section-3-slides/2.jpg",
-  "/module-2-section-3-slides/3.jpg",
-  "/module-2-section-3-slides/4.jpg",
-  "/module-2-section-3-slides/5.jpg",
-] as const;
-
 export default function ModulePage() {
   const params = useParams();
   const slug = params.slug as string;
@@ -60,12 +52,6 @@ export default function ModulePage() {
   const [suspiciousSubmitted, setSuspiciousSubmitted] = useState(false);
   const [markedComplete, setMarkedComplete] = useState(false);
   const [passphraseIndex, setPassphraseIndex] = useState(0);
-  const [module2Section3SlideIndex, setModule2Section3SlideIndex] = useState(0);
-  const [isSlideFullscreen, setIsSlideFullscreen] = useState(false);
-  const [isPreparingSlidesPrint, setIsPreparingSlidesPrint] = useState(false);
-  const [isPrintModeActive, setIsPrintModeActive] = useState(false);
-  const module2Section3SlideRef = useRef<HTMLDivElement | null>(null);
-  const module2Section3PrintRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,84 +82,6 @@ export default function ModulePage() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  useEffect(() => {
-    setModule2Section3SlideIndex(0);
-  }, [slug]);
-
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsSlideFullscreen(document.fullscreenElement === module2Section3SlideRef.current);
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  useEffect(() => {
-    document.body.classList.toggle("slides-print-mode", isPrintModeActive);
-
-    return () => {
-      document.body.classList.remove("slides-print-mode");
-    };
-  }, [isPrintModeActive]);
-
-  useEffect(() => {
-    const handleAfterPrint = () => {
-      setIsPrintModeActive(false);
-      setIsPreparingSlidesPrint(false);
-    };
-
-    window.addEventListener("afterprint", handleAfterPrint);
-    return () => {
-      window.removeEventListener("afterprint", handleAfterPrint);
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!isPreparingSlidesPrint || !isPrintModeActive) return;
-
-    let cancelled = false;
-
-    const prepareSlidesForPrint = async () => {
-      await new Promise<void>((resolve) => {
-        window.requestAnimationFrame(() => {
-          window.requestAnimationFrame(() => resolve());
-        });
-      });
-
-      const images = Array.from(
-        module2Section3PrintRef.current?.querySelectorAll<HTMLImageElement>("img[data-print-slide-image]") ?? []
-      );
-
-      await Promise.all(
-        images.map(
-          (image) =>
-            new Promise<void>((resolve) => {
-              if (image.complete) {
-                resolve();
-                return;
-              }
-
-              image.addEventListener("load", () => resolve(), { once: true });
-              image.addEventListener("error", () => resolve(), { once: true });
-            })
-        )
-      );
-
-      if (cancelled) return;
-
-      setIsPreparingSlidesPrint(false);
-      window.print();
-    };
-
-    void prepareSlidesForPrint();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isPreparingSlidesPrint, isPrintModeActive]);
 
   const handleUpdatesAnswer = useCallback((answer: "yes" | "no") => {
     void setUpdatesAnswer(answer);
@@ -185,26 +93,6 @@ export default function ModulePage() {
     setSuspiciousChoice(choice);
     setSuspiciousSubmitted(true);
   }, []);
-
-  const handleToggleSlideFullscreen = useCallback(async () => {
-    const slideContainer = module2Section3SlideRef.current;
-    if (!slideContainer) return;
-
-    if (document.fullscreenElement === slideContainer) {
-      await document.exitFullscreen();
-      return;
-    }
-
-    await slideContainer.requestFullscreen();
-  }, []);
-
-  const handlePrintSlides = useCallback(() => {
-    if (isPreparingSlidesPrint || isPrintModeActive) {
-      return;
-    }
-    setIsPreparingSlidesPrint(true);
-    setIsPrintModeActive(true);
-  }, [isPreparingSlidesPrint, isPrintModeActive]);
 
   const handleMarkComplete = useCallback(
     async (complete: boolean) => {
@@ -500,7 +388,7 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              {!(isFirstLineOfDefence && [2, 3, 4, 5, 6, 7].includes(sectionIdx)) && (
+              {!(isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx)) && (
                 <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
                   {section.title}
                 </h2>
@@ -542,112 +430,50 @@ export default function ModulePage() {
                   </>
                 ) : isFirstLineOfDefence && sectionIdx === 2 ? (
                   (() => {
-                    const videoBlock = section.blocks.find((block) => block.type === "media");
-                    const videoSlot = videoBlock?.type === "media" ? videoBlock.slot : null;
-                    const currentSlide = MODULE_2_SECTION_3_SLIDES[module2Section3SlideIndex];
+                    const tipBlock = section.blocks.find(
+                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Tip:")
+                    );
+                    const stepBlocks = section.blocks.filter(
+                      (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && !block.text.startsWith("Tip:")
+                    );
+                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
 
                     return (
-                      <>
-                        <div className="grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start">
-                          <div className="space-y-4">
-                            <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
-                              {section.title}
-                            </h2>
-                            <div
-                              ref={module2Section3SlideRef}
-                              className={`relative rounded-2xl bg-[#f5f5f5] p-2 sm:p-3 ${
-                                isSlideFullscreen ? "h-full overflow-auto" : ""
-                              }`}
-                            >
-                              <div className="mb-2">
-                                {!isSlideFullscreen && (
-                                  <div className="flex flex-wrap gap-4">
-                                    <button
-                                      type="button"
-                                      onClick={() => void handleToggleSlideFullscreen()}
-                                      className="min-h-12 rounded-xl border-2 border-black bg-[#000080] px-4 py-2 text-lg font-bold text-white transition hover:bg-[#003399] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
-                                    >
-                                      VIEW FULL SCREEN
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={handlePrintSlides}
-                                      disabled={isPreparingSlidesPrint}
-                                      className="min-h-12 rounded-xl border-2 border-black bg-white px-4 py-2 text-lg font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 disabled:cursor-wait disabled:opacity-70"
-                                    >
-                                      {isPreparingSlidesPrint ? "PREPARING PDF..." : "PRINT SLIDES"}
-                                    </button>
-                                  </div>
-                                )}
-                                <div className={`${isSlideFullscreen ? "mt-0" : "mt-4"} flex items-center justify-between gap-4`}>
-                                  <p className="text-[24px] font-bold text-[#000080]">
-                                    Slide {module2Section3SlideIndex + 1} of {MODULE_2_SECTION_3_SLIDES.length}
-                                  </p>
-                                  {isSlideFullscreen && (
-                                    <button
-                                      type="button"
-                                      onClick={() => void handleToggleSlideFullscreen()}
-                                      className="rounded-lg bg-[#c62828] px-3 py-1 text-sm font-bold text-white transition hover:bg-[#b71c1c] focus:outline-none focus:ring-2 focus:ring-[#c62828] focus:ring-offset-2"
-                                    >
-                                      EXIT
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                              <div className="overflow-hidden rounded-xl border-2 border-black bg-white">
-                                <Image
-                                  src={currentSlide}
-                                  alt={`Module 2 Section 3 slide ${module2Section3SlideIndex + 1}`}
-                                  width={1600}
-                                  height={900}
-                                  className="h-auto w-full"
-                                  priority={module2Section3SlideIndex === 0}
-                                />
-                              </div>
-                              <div className="mt-4 flex items-center justify-between gap-4">
-                                <button
-                                  type="button"
-                                  onClick={() => setModule2Section3SlideIndex((current) => Math.max(current - 1, 0))}
-                                  disabled={module2Section3SlideIndex === 0}
-                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:border-[#9a9a9a] disabled:bg-[#bdbdbd] disabled:text-[#5f5f5f]"
-                                >
-                                  BACK
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setModule2Section3SlideIndex((current) =>
-                                      Math.min(current + 1, MODULE_2_SECTION_3_SLIDES.length - 1)
-                                    )
-                                  }
-                                  disabled={module2Section3SlideIndex === MODULE_2_SECTION_3_SLIDES.length - 1}
-                                  className="min-h-16 min-w-[140px] rounded-xl border-2 border-black bg-[#FFD700] px-6 py-4 text-[22px] font-bold text-black transition hover:bg-[#FFC107] disabled:cursor-not-allowed disabled:border-[#9a9a9a] disabled:bg-[#bdbdbd] disabled:text-[#5f5f5f]"
-                                >
-                                  NEXT
-                                </button>
-                              </div>
+                      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
+                        <div className="space-y-4">
+                          <p className="text-[28px] font-bold leading-[1.6] text-black">
+                            {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+                          </p>
+                          <ol className="ml-6 list-decimal space-y-3">
+                            {stepBlocks.map((block, blockIdx) => (
+                              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                                {renderTextBlock(block.text)}
+                              </li>
+                            ))}
+                          </ol>
+                          {tipBlock && (
+                            <div className="relative mt-28 max-w-[420px] pt-20">
+                              <aside className="absolute left-[76%] -top-[5.5rem] z-10 w-full max-w-[260px] -translate-x-1/2 rounded-[2rem] bg-[#d0d0d0] px-6 py-4 text-[22px] font-medium leading-[1.6] text-black shadow-sm md:left-[108%] md:-top-[4.5rem]">
+                                <span className="absolute -bottom-4 left-6 h-8 w-8 rounded-full bg-[#d0d0d0]" aria-hidden />
+                                <span className="absolute -bottom-9 left-3 h-5 w-5 rounded-full bg-[#d0d0d0]" aria-hidden />
+                                {renderTextBlock(tipBlock.text)}
+                              </aside>
+                              <Image
+                                src="/module-2-passcode-thinking-v2.png"
+                                alt="Elena thinking while looking at her phone."
+                                width={640}
+                                height={400}
+                                className="h-auto w-full"
+                              />
                             </div>
-                          </div>
-                          <aside className="xl:sticky xl:top-6">
-                            <div className="rounded-2xl bg-white p-4 shadow-sm">
-                              {videoSlot?.label && (
-                                <p className="mb-3 text-base font-semibold text-[#000080]">{videoSlot.label}</p>
-                              )}
-                              {videoSlot?.src && videoSlot.type === "video" && (
-                                <video
-                                  controls
-                                  preload="metadata"
-                                  className="w-full rounded-lg border-2 border-black bg-black"
-                                  aria-label={videoSlot.alt || videoSlot.label || "Training video"}
-                                >
-                                  <source src={videoSlot.src} type="video/mp4" />
-                                  Your browser does not support the video tag.
-                                </video>
-                              )}
-                            </div>
-                          </aside>
+                          )}
                         </div>
-                      </>
+                        <div className="space-y-4">
+                          {mediaBlocks.map((block, blockIdx) => (
+                            <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                          ))}
+                        </div>
+                      </div>
                     );
                   })()
                 ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
@@ -955,102 +781,7 @@ export default function ModulePage() {
           )}
         </div>
       </div>
-
       <SettingsHelp />
-      {isFirstLineOfDefence && (
-        <div ref={module2Section3PrintRef} aria-hidden="true" className="slides-print-root">
-          {MODULE_2_SECTION_3_SLIDES.map((slideSrc, index) => (
-            <section key={slideSrc} className="slides-print-page">
-              <img
-                data-print-slide-image
-                src={slideSrc}
-                alt={`Module 2 Section 3 slide ${index + 1}`}
-                className="slides-print-image"
-              />
-            </section>
-          ))}
-        </div>
-      )}
-      <style jsx global>{`
-        .slides-print-root {
-          position: absolute;
-          top: 0;
-          left: -99999px;
-          width: 1400px;
-          opacity: 0;
-          pointer-events: none;
-        }
-
-        @media print {
-          @page {
-            size: landscape;
-            margin: 0;
-          }
-
-          html,
-          body.slides-print-mode {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-          }
-
-          body.slides-print-mode > header,
-          body.slides-print-mode > footer,
-          body.slides-print-mode > a[href="#main-content"] {
-            display: none !important;
-          }
-
-          body.slides-print-mode main#main-content {
-            min-height: 0 !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          body.slides-print-mode .module-page-root {
-            max-width: none !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          body.slides-print-mode .module-page-root > * {
-            display: none !important;
-          }
-
-          body.slides-print-mode .module-page-root > .slides-print-root {
-            position: static !important;
-            left: auto !important;
-            width: 100% !important;
-            opacity: 1 !important;
-            pointer-events: auto !important;
-            display: block !important;
-            margin: 0 !important;
-            padding: 0 !important;
-          }
-
-          body.slides-print-mode .slides-print-page {
-            width: 100%;
-            margin: 0;
-            padding: 0;
-            line-height: 0;
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-
-          body.slides-print-mode .slides-print-page + .slides-print-page {
-            break-before: page;
-            page-break-before: always;
-          }
-
-          body.slides-print-mode .slides-print-image {
-            display: block;
-            width: 100%;
-            max-width: none;
-            height: auto;
-            margin: 0;
-          }
-        }
-      `}</style>
     </div>
   );
 }
