@@ -673,14 +673,12 @@ export const MODULES: ModuleData[] = [
     slug: "two-factor-auth",
     title: "Two-Factor Authentication (2FA)",
     scenario: "Sam now has strong passphrases, but he still worries: What if a clever thief guesses my password anyway? We explain to Sam that 2FA is like a high-security apartment building. Even if a stranger steals your front door key (your password), they still cannot get past the security guard in the lobby (the 2FA code on your phone).",
-    estimatedMinutes: 18,
+    estimatedMinutes: 16,
     steps: [
       { id: "1", text: "What is 2FA?: Learn the Two-Key Rule: something you know and something you have." },
       { id: "2", text: "Task: Turning on 2FA for your Apple ID: Turn on two-factor authentication and confirm your phone number for security codes." },
-      { id: "3", text: "How to Use 2FA in Daily Life: Practice allowing a real login request and typing the 6-digit code." },
-      { id: "4", text: "What If I Can't Get My 2FA Code?: Learn the safe backup options Apple offers if Sam cannot see a code on his iPhone." },
-      { id: "5", text: "Pre-emptive Solutions: Sam's Spare Key Plan: Add a trusted backup number now so Sam has another way to receive codes." },
-      { id: "6", text: "Generating Codes Without the Internet: Learn how to get a verification code directly from iPhone settings while offline." },
+      { id: "3", text: "Integrating 2FA into Your Daily Life: Trusted devices, staying safe on public computers, and automatic code filling from Messages." },
+      { id: "4", text: "Best Practices for 2FA Management: Backup codes, MFA fatigue, and keeping authenticator apps backed up." },
     ],
     sections: [
       {
@@ -762,138 +760,82 @@ export const MODULES: ModuleData[] = [
         ],
       },
       {
-        title: "Section 3: How to Use 2FA in Daily Life",
+        title: "Section 3: Integrating 2FA into Your Daily Life",
         blocks: [
           {
             type: "text",
-            text: "Sam needs to know what to do when that Second Lock pops up.",
+            text: "Sam might worry that he has to type a code every single time he looks at his email. Thankfully, your iPhone is smart enough to know when it's really you.",
           },
           {
             type: "text",
-            text: "The Request: When Sam logs into his email on a new computer, a message will pop up on his iPhone: Apple ID Sign-In Requested.",
+            text: "Trusted Devices: The \"I Know You\" Rule: When Sam logs into a website (like his bank) on his own home computer, the site will often ask: \"Trust this browser?\".",
           },
           {
             type: "text",
-            text: "The Approval: He taps Allow.",
+            text: "If Sam clicks \"Yes\": The website will remember his computer. He won't have to enter a 2FA code again on that specific computer for a long time.",
           },
           {
             type: "text",
-            text: "The Code: A large, 6-digit code appears on his iPhone screen.",
+            text: "Safety Tip: Sam should never click \"Trust\" on a public computer, like the ones at the library.",
           },
           {
             type: "text",
-            text: "The Entry: Sam simply types those 6 numbers into the computer screen.",
+            text: "Automatic Code Filling: Sam doesn't always have to memorize the 6-digit code. His iPhone can \"read\" the code from a text message and suggest it right above the keyboard.",
           },
           {
             type: "text",
-            text: "Safety Rule: If Sam gets a code when he is not trying to log in, he should tap Don't Allow. This means a stranger tried to use his password, but the Second Lock stopped them.",
-          },
-        ],
-      },
-      {
-        title: "Section 4: What If I Can't Get My 2FA Code?",
-        blocks: [
-          {
-            type: "text",
-            text: "Sam might worry, What if my phone battery is dead or I leave it at home? Apple provides several back doors to help you get back into your account safely.",
-          },
-          {
-            type: "text",
-            text: "Option 1: Use Your Other Apple Devices. If Sam also owns an iPad or a Mac computer, the 6-digit code will automatically pop up on those screens at the same time it appears on his iPhone.",
-          },
-          {
-            type: "text",
-            text: "Option 2: The Phone Call Trick. If Sam cannot see his text messages, he can ask Apple to call him instead.",
-          },
-          {
-            type: "text",
-            text: "Didn't Get a Code?: When the screen asks for a code, tap Didn't Get a Code?.",
-          },
-          {
-            type: "text",
-            text: "Choose the Call Option: Choose the option to receive a phone call.",
-          },
-          {
-            type: "text",
-            text: "Listen for the Code: Sam's phone (or landline) will ring, and a friendly automated voice will read the numbers out loud for him to write down.",
-          },
-          {
-            type: "text",
-            text: "Option 3: Account Recovery (The Last Resort). If Sam has no devices and no phone, he can go to iforgot.apple.com on any computer.",
-          },
-          {
-            type: "text",
-            text: "Note: This process is very secure and can take several days because Apple needs to verify it's really Sam and not a hacker.",
-          },
-        ],
-      },
-      {
-        title: "Section 5: Pre-emptive Solutions: Sam's Spare Key Plan",
-        blocks: [
-          {
-            type: "text",
-            text: "To prevent ever needing the Last Resort, Sam should set up a backup plan today.",
-          },
-          {
-            type: "text",
-            text: "Task: Add a Trusted Backup Number",
-          },
-          {
-            type: "text",
-            text: "Sam can add a second phone number, like a landline or a trusted family member's phone, to his account.",
-          },
-          {
-            type: "text",
-            text: "Go to Settings > [Your Name] > Sign-In & Security.",
-          },
-          {
-            type: "text",
-            text: "Tap Edit (next to Trusted Phone Number).",
-          },
-          {
-            type: "text",
-            text: "Tap Add a Trusted Phone Number.",
-          },
-          {
-            type: "text",
-            text: "Enter the number of a family member you trust.",
-          },
-          {
-            type: "text",
-            text: "Now, if Sam loses his phone, he can choose to send the 2FA code to his daughter's phone to help him log in.",
+            text: "How it works: When the box for the code appears, Sam will see a button that says \"From Messages: ######\". He just taps that button, and the iPhone types the code for him.",
           },
           {
             type: "media",
             slot: {
               type: "video",
-              description: "A screen recording showing the path to add a second trusted number. It highlights the Add a Trusted Phone Number button in blue. A 2-second pause shows a list with two numbers: Primary and Back-up (Daughter).",
-              label: "Video Guide: Add a Trusted Phone Number",
+              description:
+                "A screen recording of a login page asking for a 2FA code. A text message arrives at the top of the screen. Above the iPhone keyboard, a grey box appears with the code. The finger taps the box, and the numbers automatically fill into the website.",
+              label: "Video Guide: Automatic 2FA Code from Messages",
+              alt: "Video guide showing 2FA code suggested above the keyboard from Messages and filling the login field.",
             },
           },
         ],
       },
       {
-        title: "Section 6: Generating Codes Without the Internet",
+        title: "Section 4: Best Practices for 2FA Management",
         blocks: [
           {
             type: "text",
-            text: "If Sam is traveling and does not have a cell signal, he can still get a code directly from his iPhone settings.",
+            text: "To keep Sam's \"Second Lock\" working perfectly, he should follow these three golden rules:",
           },
           {
             type: "text",
-            text: "Go to Settings > [Your Name].",
+            text: "Guard Your \"Emergency Keys\" (Backup Codes): When Sam sets up 2FA for an account, the website will often show a list of 10-digit backup codes.",
           },
           {
             type: "text",
-            text: "Tap Sign-In & Security.",
+            text: "Sam's Task: He should print these out and put them in a physical safe or a locked drawer in his desk.",
           },
           {
             type: "text",
-            text: "Tap Get Verification Code.",
+            text: "Why?: If Sam's phone is lost or broken, these codes are the only way to get back into his accounts without a long, difficult recovery process.",
           },
           {
             type: "text",
-            text: "A code will appear instantly, even if the phone is offline.",
+            text: "Beware of \"MFA Fatigue\" (The Spam Trick): Sometimes, a hacker who has Sam's password will try to \"wear him down\" by sending dozens of 2FA requests to his phone in a row.",
+          },
+          {
+            type: "text",
+            text: "The Rule: If Sam's phone starts buzzing with \"Sign-In Requested\" and he is not trying to log in, he must tap \"Don't Allow\" every single time.",
+          },
+          {
+            type: "text",
+            text: "Don't get tired: Hackers hope you will get annoyed and just hit \"Allow\" to make the buzzing stop. Stay firm!",
+          },
+          {
+            type: "text",
+            text: "Backup Your \"Keymaker\" (Authenticator Apps): If Sam decides to use an app like Authy or Google Authenticator instead of text messages, he must ensure the app itself is backed up.",
+          },
+          {
+            type: "text",
+            text: "The Step: Inside the app settings, Sam should look for \"Backup Password\" or \"Cloud Sync\". This ensures that if he gets a new phone, his \"Second Keys\" move with him.",
           },
         ],
       },
