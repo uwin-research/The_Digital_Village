@@ -196,8 +196,10 @@ export const MODULES: ModuleData[] = [
             type: "media",
             slot: {
               type: "image",
-              src: "/module-2-screen-lock-comparison.png",
-              alt: "A comparison between a physical door lock and a phone screen lock, with Elena using her phone in the center.",
+              description:
+                "Illustration titled Digital and Physical Security: physical lock on a door, Elena using her phone in the kitchen, and digital lock with bank card and fingerprint on a smartphone.",
+              src: "/module-2-digital-physical-security.jpg",
+              alt: "Digital and Physical Security illustration: physical lock and keys, Elena smiling at her phone, and a phone screen showing bank security and fingerprint unlock.",
             },
           },
         ],
@@ -507,9 +509,11 @@ export const MODULES: ModuleData[] = [
           {
             type: "media",
             slot: {
-              type: "animation",
-              description: "An animation of Sam thinking. Four bubbles appear over his head: a Bicycle, an Apple, a Garden, and the number 26. These icons merge together to form a long, strong password. Text overlay: 'Think in Pictures, Not Codes.'",
+              type: "image",
+              description: "Illustration showing Sam picturing Bicycle, Apple, Garden, and 26 to remember a passphrase.",
               label: "Think in Pictures, Not Codes",
+              src: "/module-3-passphrase-visual.png",
+              alt: "Sam imagining bicycle, apple, garden, and the number 26 as a memorable passphrase.",
             },
           },
         ],
@@ -698,8 +702,11 @@ export const MODULES: ModuleData[] = [
             type: "media",
             slot: {
               type: "image",
-              description: "A Two-Key diagram. One key is labeled Passphrase, and the other is a smartphone icon labeled Text Code. Both are needed to open a large digital treasure chest.",
-              label: "Two-Key Diagram",
+              description:
+                "Illustration titled Two-Factor Authentication: laptop with email and password, plus phone with authenticator code, equals unlocked access with treasure chest and sign-in.",
+              label: "Two-Factor Authentication",
+              src: "/module-3-two-factor-authentication.jpg",
+              alt: "Three steps: password on laptop, authenticator code on phone, successful sign-in with treasure chest.",
             },
           },
         ],

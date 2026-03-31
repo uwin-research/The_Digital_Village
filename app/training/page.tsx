@@ -29,18 +29,8 @@ const DASHBOARD_MODULES = [
     icon: null,
   },
   {
-    slug: "passwords-logging-in",
-    title: "Module 3: Passwords & Logging in Safely",
-    storyTitle: "Strong Passwords & Passphrases",
-    description:
-      "Weak vs. strong passwords, the passphrase method, and why your email is your master key.",
-    buttonLabel: "Secure Your Keys",
-    image: "/sam-passwords.png",
-    icon: null,
-  },
-  {
     slug: "two-factor-auth",
-    title: "Module 4: Two-Factor Authentication (2FA)",
+    title: "Module 3: Two-Factor Authentication (2FA)",
     storyTitle: "The Double Lock",
     description:
       "Add a second lock to your accounts. Learn what 2FA is, how to set it up, and backup codes.",
@@ -50,7 +40,7 @@ const DASHBOARD_MODULES = [
   },
   {
     slug: "app-permissions",
-    title: "Module 5: App Permissions & Safety",
+    title: "Module 4: App Permissions & Safety",
     storyTitle: "When to Say Yes or No",
     description:
       "What app permissions are, the six key permissions, and how to spot app store red flags.",
@@ -60,7 +50,7 @@ const DASHBOARD_MODULES = [
   },
   {
     slug: "software-updates",
-    title: "Module 6: Software Updates & Habits",
+    title: "Module 5: Software Updates & Habits",
     storyTitle: "The Monthly Safety Routine",
     description:
       "Why updates matter, how to check for them, automatic updates, and the monthly safety checklist.",
@@ -70,7 +60,7 @@ const DASHBOARD_MODULES = [
   },
   {
     slug: "scams-phishing",
-    title: "Module 7: Recognising Scams & Phishing",
+    title: "Module 6: Recognising Scams & Phishing",
     storyTitle: "The PAUSE Method",
     description:
       "Common scams, the PAUSE method, and what to do if you spot a suspicious message.",
@@ -80,7 +70,7 @@ const DASHBOARD_MODULES = [
   },
   {
     slug: "public-wifi-browsing",
-    title: "Module 8: Public Wi-Fi & Safe Browsing",
+    title: "Module 7: Public Wi-Fi & Safe Browsing",
     storyTitle: "Browse Safely Away from Home",
     description:
       "Public Wi-Fi risks, recognising secure websites, and what a VPN is.",
@@ -90,7 +80,7 @@ const DASHBOARD_MODULES = [
   },
   {
     slug: "caches-cookies-clutter",
-    title: "Module 9: Caches, Cookies & Digital Clutter",
+    title: "Module 8: Caches, Cookies & Digital Clutter",
     storyTitle: "Clear the Clutter",
     description:
       "What a cache is, clearing cookies and history, and private browsing mode.",
@@ -102,14 +92,17 @@ const DASHBOARD_MODULES = [
 
 export default function TrainingPage() {
   const { progress, updatesAnswered, suspiciousAnswered } = useProgressData();
+  const visibleModules = MODULES.filter((module) =>
+    DASHBOARD_MODULES.some((dashboardModule) => dashboardModule.slug === module.slug)
+  );
 
   const completed = countCompletedModules(
     progress,
-    MODULES,
+    visibleModules,
     !!updatesAnswered,
     !!suspiciousAnswered
   );
-  const total = MODULES.length;
+  const total = DASHBOARD_MODULES.length;
 
   return (
     <div className="min-h-screen">

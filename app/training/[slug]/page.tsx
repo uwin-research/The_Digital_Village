@@ -47,7 +47,6 @@ export default function ModulePage() {
   const slug = params.slug as string;
   const moduleData = getModuleBySlug(slug);
 
-  const [progress, setProgress] = useState<Record<string, boolean>>({});
   const [updatesAnswer, setUpdatesAnswerState] = useState<"yes" | "no" | null>(null);
   const [suspiciousChoice, setSuspiciousChoice] = useState<string | null>(null);
   const [suspiciousSubmitted, setSuspiciousSubmitted] = useState(false);
@@ -62,7 +61,6 @@ export default function ModulePage() {
         slug === "scams-phishing" ? getSuspiciousAnswer() : null,
       ]);
       if (cancelled) return;
-      setProgress(all[slug] ?? {});
       if (slug === "software-updates") setUpdatesAnswerState(updatesAns);
       if (slug === "scams-phishing") {
         setSuspiciousChoice(suspiciousAns);
@@ -319,27 +317,77 @@ export default function ModulePage() {
     ) : (
       <div
         className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
-        role={slot.src ? undefined : "img"}
-        aria-label={slot.src ? undefined : slot.description}
+        role="img"
+        aria-label={slot.description}
       >
-        <>
-          <p className="mb-2 font-semibold text-black">[MEDIA SLOT: {slot.type.toUpperCase()}]</p>
-          {slot.label && (
-            <p className="mb-2 text-sm font-medium text-black">Label: {slot.label}</p>
-          )}
-          <p className="mb-3 text-sm text-black">{slot.description}</p>
-          {slot.slides && (
-            <ul className="space-y-2 text-sm text-black">
-              {slot.slides.map((slide, i) => (
-                <li key={i}>
-                  <strong>Slide {i + 1}: {slide.title}</strong> — {slide.text}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
+        <p className="mb-2 font-semibold text-black">{slot.label || slot.type}</p>
+        <p className="mb-3 text-sm text-black">{slot.description}</p>
+        {slot.slides && (
+          <ul className="space-y-2 text-sm text-black">
+            {slot.slides.map((slide, i) => (
+              <li key={i}>
+                <strong>Slide {i + 1}: {slide.title}</strong> {slide.text}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     );
+  const renderTwoFactorAuthSection = (section: typeof moduleData.sections[number]) => {
+    const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
+    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+    const useNumberedSteps =
+      section.title.includes("Task:") || section.title.includes("Pre-emptive Solutions:");
+    const introText = textBlocks[0]?.text ?? "";
+    const bodyTextBlocks = textBlocks.slice(1);
+
+    const bodyContent = useNumberedSteps ? (
+      <>
+        {introText && (
+          <p className="text-[28px] font-bold leading-[1.6] text-black">{renderTextBlock(introText)}</p>
+        )}
+        {bodyTextBlocks.length > 0 && (
+          <ol className="ml-6 list-decimal space-y-4">
+            {bodyTextBlocks.map((block, blockIdx) => (
+              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                {renderTextBlock(block.text)}
+              </li>
+            ))}
+          </ol>
+        )}
+      </>
+    ) : (
+      textBlocks.map((block, blockIdx) => (
+        <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+          {renderTextBlock(block.text)}
+        </p>
+      ))
+    );
+
+    if (mediaBlocks.length === 0) {
+      return (
+        <div className="space-y-4">
+          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">{section.title}</h2>
+          {bodyContent}
+        </div>
+      );
+    }
+
+    return (
+      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px] xl:items-start">
+        <div className="space-y-4">
+          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">{section.title}</h2>
+          {bodyContent}
+        </div>
+        <aside className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+          {mediaBlocks.map((block, blockIdx) => (
+            <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+          ))}
+        </aside>
+      </div>
+    );
+  };
+
   const renderFirstLineOfDefenceSplitSection = (section: typeof moduleData.sections[number]) => {
     const introText = section.blocks[0]?.type === "text" ? section.blocks[0].text : "";
     const pathBlocks = section.blocks.filter(
@@ -410,7 +458,7 @@ export default function ModulePage() {
           : isPasswordsLoggingIn
             ? "Module 3: Passwords & Logging in Safely"
             : isTwoFactorAuth
-              ? "Module 4: Two-Factor Authentication (2FA)"
+              ? "Module 3: Two-Factor Authentication (2FA)"
             : moduleData.title}
       </h1>
       {moduleData.scenario && (
@@ -530,13 +578,40 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              {!(isFirstLineOfDefence && [2, 3, 4, 5, 6, 7].includes(sectionIdx)) && (
+              {!(isFirstLineOfDefence && [0, 2, 3, 4, 5, 6, 7].includes(sectionIdx)) && !isTwoFactorAuth && (
                 <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
                   {section.title}
                 </h2>
               )}
               <div className="space-y-6">
-                {isFirstLineOfDefence && sectionIdx === 1 ? (
+                {isFirstLineOfDefence && sectionIdx === 0 ? (
+                  (() => {
+                    const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
+                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+
+                    return (
+                      <div className="grid gap-6 md:gap-8 xl:grid-cols-[minmax(0,1.05fr)_minmax(280px,520px)] xl:items-start">
+                        <div className="space-y-4">
+                          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
+                            {section.title}
+                          </h2>
+                          {textBlocks.map((block, blockIdx) => (
+                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                              {renderTextBlock(block.text)}
+                            </p>
+                          ))}
+                        </div>
+                        <aside className="xl:sticky xl:top-6">
+                          <div className="space-y-4">
+                            {mediaBlocks.map((block, blockIdx) => (
+                              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                            ))}
+                          </div>
+                        </aside>
+                      </div>
+                    );
+                  })()
+                ) : isFirstLineOfDefence && sectionIdx === 1 ? (
                   <>
                     <p className="text-[24px] leading-[1.7] text-black">
                       There are three main ways to lock your phone. Each has its own strengths.
@@ -588,7 +663,13 @@ export default function ModulePage() {
                     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
 
                     return (
-                      <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_420px] md:items-start">
+                      <div
+                        className={
+                          mediaBlocks.length > 0
+                            ? "grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start"
+                            : "space-y-4"
+                        }
+                      >
                         <div className="space-y-4">
                           <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
                             {section.title}
@@ -632,6 +713,60 @@ export default function ModulePage() {
                             </div>
                           )}
                         </div>
+                        {mediaBlocks.length > 0 && (
+                          <aside>
+                            <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+                              {mediaBlocks.map((block, blockIdx) => (
+                                <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                              ))}
+                            </div>
+                          </aside>
+                        )}
+                      </div>
+                    );
+                  })()
+                ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
+                  renderFirstLineOfDefenceSplitSection(section)
+                ) : isTwoFactorAuth ? (
+                  renderTwoFactorAuthSection(section)
+                ) : isPasswordsLoggingIn && sectionIdx === 0 ? (
+                  (() => {
+                    const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
+                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+
+                    return (
+                      <div className={mediaBlocks.length > 0 ? "grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px] xl:items-start" : "space-y-4"}>
+                        <div className="space-y-4">
+                          {textBlocks.map((block, blockIdx) => (
+                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                              {renderTextBlock(block.text)}
+                            </p>
+                          ))}
+                        </div>
+                        {mediaBlocks.length > 0 ? (
+                          <div className="space-y-4">
+                            {mediaBlocks.map((block, blockIdx) => (
+                              <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+                            ))}
+                          </div>
+                        ) : null}
+                      </div>
+                    );
+                  })()
+                ) : isPasswordsLoggingIn && sectionIdx === 1 ? (
+                  (() => {
+                    const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
+                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+
+                    return (
+                      <div className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px] xl:items-start">
+                        <div className="space-y-4">
+                          {textBlocks.map((block, blockIdx) => (
+                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                              {renderTextBlock(block.text)}
+                            </p>
+                          ))}
+                        </div>
                         <div className="space-y-4">
                           {mediaBlocks.map((block, blockIdx) => (
                             <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
@@ -640,70 +775,6 @@ export default function ModulePage() {
                       </div>
                     );
                   })()
-                ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
-                  renderFirstLineOfDefenceSplitSection(section)
-                ) : isTwoFactorAuth && sectionIdx === 1 ? (
-                  <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
-                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                    </p>
-                    <ol className="ml-6 list-decimal space-y-4">
-                      {section.blocks.slice(1).map((block, blockIdx) =>
-                        block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                            {renderTextBlock(block.text)}
-                          </li>
-                        ) : (
-                          <li key={blockIdx} className="list-none">
-                            <div>{renderMediaBlock(block.slot)}</div>
-                          </li>
-                        )
-                      )}
-                    </ol>
-                  </>
-                ) : isTwoFactorAuth && sectionIdx === 2 ? (
-                  <>
-                    {section.blocks.map((block, blockIdx) =>
-                      block.type === "text" ? (
-                        <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                          {renderTextBlock(block.text)}
-                        </p>
-                      ) : (
-                        <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-                      )
-                    )}
-                  </>
-                ) : isTwoFactorAuth && [4, 5].includes(sectionIdx) ? (
-                  <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
-                      {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                    </p>
-                    <ol className="ml-6 list-decimal space-y-4">
-                      {section.blocks.slice(1).map((block, blockIdx) =>
-                        block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                            {renderTextBlock(block.text)}
-                          </li>
-                        ) : (
-                          <li key={blockIdx} className="list-none">
-                            <div>{renderMediaBlock(block.slot)}</div>
-                          </li>
-                        )
-                      )}
-                    </ol>
-                  </>
-                ) : isPasswordsLoggingIn && sectionIdx === 1 ? (
-                  <>
-                    {section.blocks.map((block, blockIdx) =>
-                      block.type === "text" ? (
-                        <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                          {renderTextBlock(block.text)}
-                        </p>
-                      ) : (
-                        <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-                      )
-                    )}
-                  </>
                 ) : isPasswordsLoggingIn && sectionIdx === 4 ? (
                   <>
                     <p className="text-[28px] font-bold leading-[1.6] text-black">
