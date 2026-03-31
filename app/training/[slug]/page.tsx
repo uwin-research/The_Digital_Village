@@ -1,6 +1,6 @@
 "use client";
 
-import { ContentBlock, getModuleBySlug, MODULES, MediaSlot } from "@/lib/modules";
+import { ContentBlock, getModuleBySlug, MODULES, MediaSlot, type ModuleSection } from "@/lib/modules";
 import {
   getStoredProgress,
   getUpdatesAnswer,
@@ -213,11 +213,6 @@ export default function ModulePage() {
       if (!moduleData) return;
       if (complete) {
         await markModuleComplete(moduleData);
-        if (moduleData.steps.length > 0) {
-          const allSteps: Record<string, boolean> = {};
-          moduleData.steps.forEach((s) => { allSteps[s.id] = true; });
-          setProgress(allSteps);
-        }
         if (moduleData.slug === "software-updates") setUpdatesAnswerState("yes");
         if (moduleData.slug === "scams-phishing") {
           setSuspiciousChoice("A is suspicious");
@@ -225,7 +220,6 @@ export default function ModulePage() {
         }
       } else {
         await unmarkModuleComplete(moduleData);
-        if (moduleData.steps.length > 0) setProgress({});
         if (moduleData.slug === "software-updates") setUpdatesAnswerState(null);
         if (moduleData.slug === "scams-phishing") {
           setSuspiciousChoice(null);
@@ -333,7 +327,7 @@ export default function ModulePage() {
         )}
       </div>
     );
-  const renderTwoFactorAuthSection = (section: typeof moduleData.sections[number]) => {
+  const renderTwoFactorAuthSection = (section: ModuleSection) => {
     const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
     const useNumberedSteps =
@@ -388,7 +382,7 @@ export default function ModulePage() {
     );
   };
 
-  const renderFirstLineOfDefenceSplitSection = (section: typeof moduleData.sections[number]) => {
+  const renderFirstLineOfDefenceSplitSection = (section: ModuleSection) => {
     const introText = section.blocks[0]?.type === "text" ? section.blocks[0].text : "";
     const pathBlocks = section.blocks.filter(
       (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Path:")

@@ -6,7 +6,7 @@ const PROMISE_ITEMS = [
   "Check which apps can access your camera/microphone/location",
   "Make sure your phone has the latest security updates",
   "Learn how to safely handle suspicious messages",
-  "Leave with a printable safety plan",
+  "Track your progress as you complete each training module",
 ];
 
 export default function HomePage() {
