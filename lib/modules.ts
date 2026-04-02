@@ -845,15 +845,172 @@ export const MODULES: ModuleData[] = [
   {
     slug: "app-permissions",
     title: "App Permissions & Safety",
-    scenario: "Not every app needs access to everything. Learn when to say Yes—and when to say No.",
-    estimatedMinutes: 18,
+    scenario:
+      "Setting Boundaries for Your Digital Guests. The Elena Story: Elena downloaded a new Weather App to plan her garden. Suddenly, a box popped up asking for permission to see her Photos and Contacts. Elena thought, \"Why does a weather app need to see my grandkids' pictures?\" This module teaches Elena how to say No to nosy apps.",
+    estimatedMinutes: 22,
     steps: [
-      { id: "1", text: "What App Permissions Are: Apps ask for access to your camera, location, contacts. A flashlight app asking for your location? That's suspicious." },
-      { id: "2", text: "The Six Key Permissions: Camera, Microphone, Location, Contacts, Photos, Notifications. A Map app needs Location? Yes. A game app needs Contacts? Usually no." },
-      { id: "3", text: "The Rule of Least Access: Only give what's needed. Choose 'Only This Time' when possible—it keeps your privacy." },
-      { id: "4", text: "App Store Red Flags: Look for verified apps (blue checkmark, millions of reviews). Avoid apps with no reviews, blurry icons, or comments like 'This is a scam!'" },
+      { id: "1", text: "What are App Permissions?: Your phone is like your home; apps are guests. Learn the key permissions—including Background App Refresh—and when each makes sense." },
+      { id: "2", text: "The Rule of Least Access: Only give an app the bare minimum. If a request feels nosy, tap Don't Allow." },
+      { id: "3", text: "Task: How to Take Back a Key (iPhone): Use Settings → Privacy & Security to review and turn off permissions app by app." },
+      { id: "4", text: "App Download Safety: Check the developer, review counts, and red flags before you tap Get in the App Store." },
+      { id: "5", text: "The Permission Request Checklist: Three questions to ask before you tap Allow on any new app." },
     ],
-    examples: "If a flashlight app asks for your microphone, that's unusual.",
+    sections: [
+      {
+        title: "Section 1: What are App Permissions?",
+        blocks: [
+          {
+            type: "text",
+            text: "Think of your phone as your home. Apps are like guests. Some guests only need to stay in the hallway (Notifications), while others might ask to enter your office (Files) or your backyard (Location). Permissions are the keys you give them.",
+          },
+          {
+            type: "text",
+            text: "The Key Permissions Explained",
+          },
+          {
+            type: "text",
+            text: "Location: Tells the app where you are. Essential for Maps, but a \"Calculator\" doesn't need it.",
+          },
+          {
+            type: "text",
+            text: "Camera: Lets the app take photos. Needed for video calls, but suspicious for a \"Battery Saver\" app.",
+          },
+          {
+            type: "text",
+            text: "Microphone: Lets the app hear you. Necessary for recording a memo, but shouldn't be \"on\" for a simple game.",
+          },
+          {
+            type: "text",
+            text: "Contacts: Gives the app your friends' phone numbers. Be careful—some apps use this to send spam.",
+          },
+          {
+            type: "text",
+            text: "Storage/Photos: Lets an app see your saved pictures. Only give this to apps you trust to handle your memories.",
+          },
+          {
+            type: "text",
+            text: "Notifications: Lets the app \"beep\" or \"buzz\" to get your attention. Turn this off if an app is too noisy.",
+          },
+          {
+            type: "text",
+            text: "Background App Refresh: This allows apps to check for new information (like weather updates or new emails) even when you aren't using them.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "image",
+              description:
+                "Illustrated iPhone Settings screen for a single app (example: Instagram) showing Allow app to access Location, Contacts, Photos, Microphone, Camera, and other toggles.",
+              label: "Per-app permissions in Settings",
+              src: "/module-4-app-permissions-settings.png",
+              alt: "Illustration of an iPhone showing per-app permission settings with toggles for microphone, camera, photos, location, and more.",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 2: The Rule of Least Access",
+        blocks: [
+          {
+            type: "text",
+            text: "Elena's Golden Rule: Only give an app the bare minimum it needs to do its job.",
+          },
+          {
+            type: "text",
+            text: "Example: A Pizza app needs your Location to deliver food, but it does not need your Camera.",
+          },
+          {
+            type: "text",
+            text: "Elena's Action: If a request feels nosy, tap Don't Allow. If the app truly needs it to work, it will ask you again later with an explanation.",
+          },
+        ],
+      },
+      {
+        title: "Section 3: Task: How to Take Back a \"Key\" (iPhone)",
+        blocks: [
+          {
+            type: "text",
+            text: "If Elena gave an app permission by mistake, she can evict that app from her private data at any time.",
+          },
+          {
+            type: "text",
+            text: "Path: Settings → Privacy & Security → [choose a category, e.g. Microphone or Camera]",
+          },
+          {
+            type: "text",
+            text: "Open Settings: Tap the grey Settings (gear) icon.",
+          },
+          {
+            type: "text",
+            text: "Privacy & Security: Scroll down and tap Privacy & Security (look for the blue hand icon).",
+          },
+          {
+            type: "text",
+            text: "Choose a Room: Tap on a category, like Microphone or Camera.",
+          },
+          {
+            type: "text",
+            text: "Review the List: You will see every app that has permission to use that feature.",
+          },
+          {
+            type: "text",
+            text: "Turn it Off: Slide the green switch to grey for any app that doesn't belong there.",
+          },
+          {
+            type: "media",
+            slot: {
+              type: "video",
+              description:
+                "A slow-paced screen recording of an iPhone. It follows the path: Settings > Privacy & Security > Microphone. It shows a list of apps, and a finger toggles Off a game that was using the mic. Text overlay: You are the boss of your data.",
+              label: "Video Guide: Privacy & Security Permissions",
+              alt: "Video guide showing iPhone Settings, Privacy & Security, and turning off microphone access for an app.",
+            },
+          },
+        ],
+      },
+      {
+        title: "Section 4: App Download Safety: Judging Before Installing",
+        blocks: [
+          {
+            type: "text",
+            text: "Before Elena taps Get in the App Store, she should look for these three Green Flags:",
+          },
+          {
+            type: "text",
+            text: "The Developer: Check if the name looks professional (for example, Google LLC or Microsoft).",
+          },
+          {
+            type: "text",
+            text: "Review Counts: Look for apps with thousands of reviews. If it only has two reviews and they look like bot talk, stay away.",
+          },
+          {
+            type: "text",
+            text: "Red Flags: Watch out for misspelled names (like Face-book with a dash) or blurry, low-quality icons.",
+          },
+        ],
+      },
+      {
+        title: "Section 5: The Permission Request Checklist",
+        blocks: [
+          {
+            type: "text",
+            text: "Before Elena taps Allow on any new app, she should ask these three questions:",
+          },
+          {
+            type: "text",
+            text: "Does this app NEED this to work? (For example, does a flashlight need my contacts? No.)",
+          },
+          {
+            type: "text",
+            text: "Am I okay with this company seeing this?",
+          },
+          {
+            type: "text",
+            text: "Can I choose Allow Once? (This gives the key for today only, and the door locks again tomorrow.)",
+          },
+        ],
+      },
+    ],
     safetyCallout: "You can turn permissions back on later if something stops working.",
   },
   {

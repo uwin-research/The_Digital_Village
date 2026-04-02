@@ -248,6 +248,7 @@ export default function ModulePage() {
   const isFirstLineOfDefence = moduleData.slug === "first-line-of-defence";
   const isPasswordsLoggingIn = moduleData.slug === "passwords-logging-in";
   const isTwoFactorAuth = moduleData.slug === "two-factor-auth";
+  const isAppPermissions = moduleData.slug === "app-permissions";
   const nextModule = MODULES.find((module, index) => MODULES[index - 1]?.slug === slug) ?? null;
   const renderTextBlock = (text: string) => {
     const colonIndex = text.indexOf(":");
@@ -431,8 +432,10 @@ export default function ModulePage() {
       </div>
     );
   };
-  const showWideLayout = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
-  const useLargeSectionText = isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth;
+  const showWideLayout =
+    isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth || isAppPermissions;
+  const useLargeSectionText =
+    isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth || isAppPermissions;
   const pageWidthClass = isFirstLineOfDefence ? "max-w-7xl" : showWideLayout ? "max-w-5xl" : "max-w-3xl";
 
   return (
@@ -453,7 +456,9 @@ export default function ModulePage() {
             ? "Module 3: Passwords & Logging in Safely"
             : isTwoFactorAuth
               ? "Module 3: Two-Factor Authentication (2FA)"
-            : moduleData.title}
+              : isAppPermissions
+                ? "Module 4: App Permissions & Safety"
+                : moduleData.title}
       </h1>
       {moduleData.scenario && (
         <p className={`mb-6 rounded-lg border-2 border-black bg-white p-4 italic text-black ${showWideLayout ? "text-[24px] leading-[1.7]" : "text-base"}`}>
@@ -543,6 +548,28 @@ export default function ModulePage() {
         </section>
       )}
 
+      {isAppPermissions && (
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-app-permissions-hero">
+          <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
+            <Image
+              src="/module-4-elena-permissions.png"
+              alt="Elena reviewing app permissions and the six key permission types on her iPhone."
+              fill
+              className="object-cover object-center"
+              sizes="100vw"
+            />
+          </div>
+          <div className="p-6">
+            <h2 id="module-app-permissions-hero" className="text-[32px] font-bold text-[#000080]">
+              Setting Boundaries for Your Digital Guests
+            </h2>
+            <p className="mt-3 text-[24px] leading-[1.7] text-black">
+              The goal: learn which permissions apps may ask for, when to say no, and how to take back access from Settings.
+            </p>
+          </div>
+        </section>
+      )}
+
       {moduleData.tip && (
         <div className="mb-6 rounded-xl border-l-4 border-2 border-[#000080] bg-white p-4" role="note">
           <p className="font-semibold text-black">Tip</p>
@@ -572,7 +599,9 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              {!(isFirstLineOfDefence && [0, 2, 3, 4, 5, 6, 7].includes(sectionIdx)) && !isTwoFactorAuth && (
+              {!(isFirstLineOfDefence && [0, 2, 3, 4, 5, 6, 7].includes(sectionIdx)) &&
+                !isTwoFactorAuth &&
+                !isAppPermissions && (
                 <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
                   {section.title}
                 </h2>
@@ -721,7 +750,7 @@ export default function ModulePage() {
                   })()
                 ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
                   renderFirstLineOfDefenceSplitSection(section)
-                ) : isTwoFactorAuth && sectionIdx === 1 ? (
+                ) : (isTwoFactorAuth && sectionIdx === 1) || (isAppPermissions && sectionIdx === 2) ? (
                   (() => {
                     const pathBlock = section.blocks.find(
                       (block, idx): block is ContentBlock =>
@@ -775,7 +804,7 @@ export default function ModulePage() {
                       </div>
                     );
                   })()
-                ) : isTwoFactorAuth ? (
+                ) : isTwoFactorAuth || isAppPermissions ? (
                   renderTwoFactorAuthSection(section)
                 ) : isPasswordsLoggingIn && sectionIdx === 0 ? (
                   (() => {
