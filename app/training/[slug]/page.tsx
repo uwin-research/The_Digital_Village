@@ -278,8 +278,12 @@ export default function ModulePage() {
     const label = text.slice(0, colonIndex).trim();
     const remainder = text.slice(colonIndex + 1).trim();
 
-    if (!label || !remainder) {
+    if (!label) {
       return text;
+    }
+
+    if (!remainder) {
+      return <strong>{text.trim()}</strong>;
     }
 
     return (

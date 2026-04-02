@@ -900,10 +900,10 @@ export const MODULES: ModuleData[] = [
             slot: {
               type: "image",
               description:
-                "Illustrated iPhone Settings screen for a single app (example: Instagram) showing Allow app to access Location, Contacts, Photos, Microphone, Camera, and other toggles.",
-              label: "Per-app permissions in Settings",
-              src: "/module-4-app-permissions-settings.png",
-              alt: "Illustration of an iPhone showing per-app permission settings with toggles for microphone, camera, photos, location, and more.",
+                "Hand-drawn iPhone Settings screen for Weather App: Allow Weather App to Access lists Location (While Using), Siri & Search, Notifications, Background App Refresh, and Cellular Data with toggles.",
+              label: "Weather App permissions in Settings",
+              src: "/module-4-weather-app-permissions.png",
+              alt: "Illustration of an iPhone showing Weather App permission settings including Location, Siri & Search, Notifications, Background App Refresh, and Cellular Data.",
             },
           },
         ],
