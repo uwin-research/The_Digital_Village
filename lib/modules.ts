@@ -168,9 +168,6 @@ export const MODULES: ModuleData[] = [
       { id: "3", text: "Task: Setting Up Your Passcode (iPhone): Turn on a 6-digit passcode and avoid weak codes like 123456 or your birth year." },
       { id: "4", text: "Biometrics: The Magic Touch: Set up Face ID so your phone can recognize your face quickly and safely." },
       { id: "5", text: "The Safety Nap (Auto-Lock): Set Auto-Lock to 30 Seconds or 1 Minute so your phone protects itself when you forget." },
-      { id: "6", text: "Medical ID: Add emergency health details and trusted contacts that helpers can see without your passcode." },
-      { id: "7", text: "Emergency SOS: Set up the fast-call shortcut so your phone can call for help quickly." },
-      { id: "8", text: "How to Use Your Plan: Practice how to open Medical ID and trigger Emergency SOS before a real emergency." },
     ],
     sections: [
       {
@@ -339,117 +336,6 @@ export const MODULES: ModuleData[] = [
               alt: "Video guide showing the Auto-Lock settings steps on an iPhone.",
               src: "/module-2-auto-lock-guide.mp4",
             },
-          },
-        ],
-      },
-      {
-        title: "Section 6: Medical ID: Your Emergency Lifeline",
-        blocks: [
-          {
-            type: "text",
-            text: "Just like carrying a medical alert bracelet, your iPhone can store a Medical ID. This is a special profile that paramedics can see without needing your secret passcode.",
-          },
-          {
-            type: "text",
-            text: "Task: Creating Your Medical ID",
-          },
-          {
-            type: "text",
-            text: "Find the Heart: Open the Health app (it has a white icon with a small red heart).",
-          },
-          {
-            type: "text",
-            text: "Open Your Profile: Tap your picture or initials in the top-right corner.",
-          },
-          {
-            type: "text",
-            text: "Medical ID: Tap Medical ID, then tap Edit or Get Started.",
-          },
-          {
-            type: "text",
-            text: "Fill in the Blanks: Enter your allergies, medications, and blood type.",
-          },
-          {
-            type: "text",
-            text: "The Lifeline: Scroll to Emergency Contacts. Tap the plus sign (+) and select your daughter or a trusted friend.",
-          },
-          {
-            type: "text",
-            text: "The Secret Switch: Make sure Show When Locked is turned On (Green). This is what allows help to find your info in an emergency.",
-          },
-          {
-            type: "text",
-            text: "Save: Tap Done.",
-          },
-          {
-            type: "media",
-            slot: {
-              type: "video",
-              description: "Video guide showing how to set up Medical ID on an iPhone.",
-              label: "Video Guide: Set Up Medical ID",
-              alt: "Video guide showing the Medical ID setup steps on an iPhone.",
-              src: "/module-2-medical-id-guide.mp4",
-            },
-          },
-        ],
-      },
-      {
-        title: "Section 7: Emergency SOS: The Fast-Call Button",
-        blocks: [
-          {
-            type: "text",
-            text: "If Elena is in trouble and cannot dial 911 manually, she can use Emergency SOS to call for help and text her daughter her exact location automatically.",
-          },
-          {
-            type: "text",
-            text: "Task: Setting Up Your SOS Shortcut",
-          },
-          {
-            type: "text",
-            text: "Go to Settings: Tap Settings > Emergency SOS.",
-          },
-          {
-            type: "text",
-            text: "Choose Your Move:",
-          },
-          {
-            type: "text",
-            text: "The Squeeze: Turn on Call with Hold and Release. You just squeeze the side and volume buttons together.",
-          },
-          {
-            type: "text",
-            text: "The 5-Tap: Turn on Call with 5 Button Presses. You rapidly click the side button five times.",
-          },
-          {
-            type: "text",
-            text: "Automatic Alerts: Ensure your Emergency Contacts are listed here. After the 911 call ends, your phone will automatically text them your location.",
-          },
-          {
-            type: "media",
-            slot: {
-              type: "video",
-              description: "Video guide showing how to set up Emergency SOS on an iPhone.",
-              label: "Video Guide: Set Up Emergency SOS",
-              alt: "Video guide showing the Emergency SOS setup steps on an iPhone.",
-              src: "/module-2-sos-guide.mp4",
-            },
-          },
-        ],
-      },
-      {
-        title: "Section 8: How to Use Your Plan (The What If Drill)",
-        blocks: [
-          {
-            type: "text",
-            text: "It is important to know how to find this information before a real emergency happens.",
-          },
-          {
-            type: "text",
-            text: "To See Medical Info: If the phone is locked, swipe as if to unlock it. Tap Emergency at the bottom left, then tap Medical ID.",
-          },
-          {
-            type: "text",
-            text: "To Call for Help: Use the Squeeze or 5-Tap method you chose in the settings above. A loud siren will sound, and a countdown will begin before calling for help.",
           },
         ],
       },

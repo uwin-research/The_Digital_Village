@@ -10,6 +10,7 @@ import {
   markModuleComplete,
   unmarkModuleComplete,
 } from "@/lib/progress";
+import { printModule2Section3Slides } from "@/lib/printModule2Slides";
 import { SettingsHelp } from "@/components/SettingsHelp";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import Image from "next/image";
@@ -34,13 +35,14 @@ const SUSPICIOUS_OPTIONS = [
   "Neither is suspicious",
 ] as const;
 
-const MODULE_2_SECTION_3_SLIDES = [
-  "/module-2-section-3-slides/1.jpg",
-  "/module-2-section-3-slides/2.jpg",
-  "/module-2-section-3-slides/3.jpg",
-  "/module-2-section-3-slides/4.jpg",
-  "/module-2-section-3-slides/5.jpg",
-] as const;
+/** Override `ModuleData.title` on lesson pages where the dashboard numbering differs. */
+const MODULE_PAGE_HEADING: Partial<Record<string, string>> = {
+  "getting-comfortable": "Module 1: Getting Comfortable with Your Device",
+  "first-line-of-defence": "Module 2: Your First Line of Defence",
+  "passwords-logging-in": "Module 3: Passwords & Logging in Safely",
+  "two-factor-auth": "Module 3: Two-Factor Authentication (2FA)",
+  "app-permissions": "Module 4: App Permissions & Safety",
+};
 
 export default function ModulePage() {
   const params = useParams();
@@ -77,9 +79,10 @@ export default function ModulePage() {
       }
     }
     void load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [slug]);
-
 
   const handleUpdatesAnswer = useCallback((answer: "yes" | "no") => {
     void setUpdatesAnswer(answer);
@@ -93,119 +96,7 @@ export default function ModulePage() {
   }, []);
 
   const handlePrintSection3Slides = useCallback(() => {
-    const printFrame = document.createElement("iframe");
-    printFrame.setAttribute("aria-hidden", "true");
-    printFrame.style.position = "fixed";
-    printFrame.style.right = "0";
-    printFrame.style.bottom = "0";
-    printFrame.style.width = "0";
-    printFrame.style.height = "0";
-    printFrame.style.border = "0";
-    document.body.appendChild(printFrame);
-
-    const printWindow = printFrame.contentWindow;
-    const printDocument = printWindow?.document;
-    if (!printWindow || !printDocument) {
-      printFrame.remove();
-      return;
-    }
-
-    const slideMarkup = MODULE_2_SECTION_3_SLIDES.map(
-      (slideSrc, index) => `
-        <section class="print-slide">
-          <img src="${new URL(slideSrc, window.location.origin).toString()}" alt="Module 2 Section 3 slide ${index + 1}" />
-        </section>
-      `
-    ).join("");
-
-    printDocument.open();
-    printDocument.write(`<!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <meta charset="utf-8" />
-          <title>Section 3 Slides</title>
-          <style>
-            @page {
-              size: landscape;
-              margin: 0;
-            }
-
-            html, body {
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
-            }
-
-            .print-slide {
-              width: 100%;
-              margin: 0;
-              padding: 0;
-              line-height: 0;
-              break-inside: avoid;
-              page-break-inside: avoid;
-            }
-
-            .print-slide + .print-slide {
-              break-before: page;
-              page-break-before: always;
-            }
-
-            img {
-              display: block;
-              width: 100%;
-              max-width: none;
-              height: auto;
-              margin: 0;
-            }
-          </style>
-        </head>
-        <body>
-          ${slideMarkup}
-        </body>
-      </html>`);
-    printDocument.close();
-
-    const images = Array.from(printDocument.images);
-    const cleanup = () => {
-      window.setTimeout(() => {
-        printFrame.remove();
-      }, 300);
-    };
-
-    const startPrint = () => {
-      const handleAfterPrint = () => {
-        printWindow.removeEventListener("afterprint", handleAfterPrint);
-        cleanup();
-      };
-
-      printWindow.addEventListener("afterprint", handleAfterPrint);
-      printWindow.focus();
-      printWindow.print();
-      window.setTimeout(cleanup, 2000);
-    };
-
-    if (images.length === 0) {
-      startPrint();
-      return;
-    }
-
-    let loadedImages = 0;
-    const handleImageReady = () => {
-      loadedImages += 1;
-      if (loadedImages === images.length) {
-        startPrint();
-      }
-    };
-
-    images.forEach((image) => {
-      if (image.complete) {
-        handleImageReady();
-        return;
-      }
-
-      image.addEventListener("load", handleImageReady, { once: true });
-      image.addEventListener("error", handleImageReady, { once: true });
-    });
+    printModule2Section3Slides();
   }, []);
 
   const handleMarkComplete = useCallback(
@@ -332,7 +223,55 @@ export default function ModulePage() {
         )}
       </div>
     );
-  const renderTwoFactorAuthSection = (section: ModuleSection) => {
+
+  /** 2FA “turn on” task, App Permissions “take back a key” — intro, Path line, numbered steps, video. */
+  function taskPathWithVideo(section: ModuleSection) {
+    const pathBlock = section.blocks.find(
+      (block, idx): block is ContentBlock =>
+        idx > 0 && block.type === "text" && block.text.startsWith("Path:")
+    );
+    const stepBlocks = section.blocks.filter(
+      (block, idx): block is ContentBlock =>
+        idx > 0 && block.type === "text" && !block.text.startsWith("Path:")
+    );
+    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
+    const grid =
+      mediaBlocks.length > 0
+        ? "grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start"
+        : "space-y-4";
+
+    return (
+      <div className={grid}>
+        <div className="space-y-4">
+          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">{section.title}</h2>
+          <p className="text-[28px] font-bold leading-[1.6] text-black">
+            {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
+          </p>
+          {pathBlock && (
+            <p className="text-[24px] leading-[1.7] text-black">{renderTextBlock(pathBlock.text)}</p>
+          )}
+          <ol className="ml-6 list-decimal space-y-3">
+            {stepBlocks.map((block, blockIdx) => (
+              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                {renderTextBlock(block.text)}
+              </li>
+            ))}
+          </ol>
+        </div>
+        {mediaBlocks.length > 0 && (
+          <aside>
+            <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
+              {mediaBlocks.map((block, blockIdx) => (
+                <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
+              ))}
+            </div>
+          </aside>
+        )}
+      </div>
+    );
+  }
+
+  const renderWideSplitSection = (section: ModuleSection) => {
     const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
     const mediaBlocks = section.blocks.filter((block) => block.type === "media");
     const useNumberedSteps =
@@ -387,7 +326,7 @@ export default function ModulePage() {
     );
   };
 
-  const renderFirstLineOfDefenceSplitSection = (section: ModuleSection) => {
+  const renderDefenceSplitSection = (section: ModuleSection) => {
     const introText = section.blocks[0]?.type === "text" ? section.blocks[0].text : "";
     const pathBlocks = section.blocks.filter(
       (block, idx): block is ContentBlock => idx > 0 && block.type === "text" && block.text.startsWith("Path:")
@@ -452,17 +391,7 @@ export default function ModulePage() {
       </Link>
 
       <h1 className={`mb-2 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-3xl"}`}>
-        {isGettingComfortable
-          ? "Module 1: Getting Comfortable with Your Device"
-          : isFirstLineOfDefence
-          ? "Module 2: Your First Line of Defence"
-          : isPasswordsLoggingIn
-            ? "Module 3: Passwords & Logging in Safely"
-            : isTwoFactorAuth
-              ? "Module 3: Two-Factor Authentication (2FA)"
-              : isAppPermissions
-                ? "Module 4: App Permissions & Safety"
-                : moduleData.title}
+        {MODULE_PAGE_HEADING[slug] ?? moduleData.title}
       </h1>
       {moduleData.scenario && (
         <p className={`mb-6 rounded-lg border-2 border-black bg-white p-4 italic text-black ${showWideLayout ? "text-[24px] leading-[1.7]" : "text-base"}`}>
@@ -557,7 +486,7 @@ export default function ModulePage() {
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/module-4-elena-permissions.png"
-              alt="Elena reviewing app permissions and the six key permission types on her iPhone."
+              alt="Elena reviewing app permissions on her iPhone."
               fill
               className="object-cover object-center"
               sizes="100vw"
@@ -603,7 +532,7 @@ export default function ModulePage() {
         <div className="mb-8 space-y-10">
           {moduleData.sections.map((section, sectionIdx) => (
             <section key={sectionIdx} className="rounded-xl border-2 border-black bg-white p-6 shadow-sm">
-              {!(isFirstLineOfDefence && [0, 2, 3, 4, 5, 6, 7].includes(sectionIdx)) &&
+              {!(isFirstLineOfDefence && [0, 2, 3, 4].includes(sectionIdx)) &&
                 !isTwoFactorAuth &&
                 !isAppPermissions && (
                 <h2 className={`mb-6 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`}>
@@ -752,64 +681,12 @@ export default function ModulePage() {
                       </div>
                     );
                   })()
-                ) : isFirstLineOfDefence && [3, 4, 5, 6, 7].includes(sectionIdx) ? (
-                  renderFirstLineOfDefenceSplitSection(section)
+                ) : isFirstLineOfDefence && [3, 4].includes(sectionIdx) ? (
+                  renderDefenceSplitSection(section)
                 ) : (isTwoFactorAuth && sectionIdx === 1) || (isAppPermissions && sectionIdx === 2) ? (
-                  (() => {
-                    const pathBlock = section.blocks.find(
-                      (block, idx): block is ContentBlock =>
-                        idx > 0 && block.type === "text" && block.text.startsWith("Path:")
-                    );
-                    const stepBlocks = section.blocks.filter(
-                      (block, idx): block is ContentBlock =>
-                        idx > 0 &&
-                        block.type === "text" &&
-                        !block.text.startsWith("Path:")
-                    );
-                    const mediaBlocks = section.blocks.filter((block) => block.type === "media");
-
-                    return (
-                      <div
-                        className={
-                          mediaBlocks.length > 0
-                            ? "grid gap-8 xl:grid-cols-[minmax(0,1.35fr)_460px] xl:items-start"
-                            : "space-y-4"
-                        }
-                      >
-                        <div className="space-y-4">
-                          <h2 className="font-bold text-[#000080] text-[32px] leading-tight">
-                            {section.title}
-                          </h2>
-                          <p className="text-[28px] font-bold leading-[1.6] text-black">
-                            {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
-                          </p>
-                          {pathBlock && (
-                            <p className="text-[24px] leading-[1.7] text-black">
-                              {renderTextBlock(pathBlock.text)}
-                            </p>
-                          )}
-                          <ol className="ml-6 list-decimal space-y-3">
-                            {stepBlocks.map((block, blockIdx) => (
-                              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
-                                {renderTextBlock(block.text)}
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                        {mediaBlocks.length > 0 && (
-                          <aside>
-                            <div className="space-y-4 rounded-2xl bg-white p-4 shadow-sm">
-                              {mediaBlocks.map((block, blockIdx) => (
-                                <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>
-                              ))}
-                            </div>
-                          </aside>
-                        )}
-                      </div>
-                    );
-                  })()
+                  taskPathWithVideo(section)
                 ) : isTwoFactorAuth || isAppPermissions ? (
-                  renderTwoFactorAuthSection(section)
+                  renderWideSplitSection(section)
                 ) : isPasswordsLoggingIn && sectionIdx === 0 ? (
                   (() => {
                     const textBlocks = section.blocks.filter((block): block is ContentBlock => block.type === "text");
@@ -931,9 +808,9 @@ export default function ModulePage() {
             {moduleData.steps.map((step, idx) => (
               <li key={step.id} className="text-base text-black">
                 Step {idx + 1}: {step.text}
-            </li>
-          ))}
-        </ol>
+              </li>
+            ))}
+          </ol>
         )
       )}
 
@@ -1058,13 +935,13 @@ export default function ModulePage() {
         )}
         <div className="flex w-full flex-wrap items-center gap-3">
           <div className="flex flex-wrap gap-3">
-          <Link
-            href="/training"
-              className="rounded-lg px-5 py-3 font-medium text-black bg-[#FFD700] no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080]"
+            <Link
+              href="/training"
+              className="rounded-lg bg-[#FFD700] px-5 py-3 font-medium text-black no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080]"
               style={{ textDecoration: "none" }}
-          >
-            Back to Training
-          </Link>
+            >
+              Back to Training
+            </Link>
           </div>
           {markedComplete && nextModule && (
             <div className="ml-auto">
