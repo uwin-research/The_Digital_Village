@@ -1,42 +1,24 @@
 "use client";
 
-import { useAccessibility } from "@/context/AccessibilityContext";
 import { useAuth } from "@/context/AuthContext";
 import { Shield } from "lucide-react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
-export default function SignInPage() {
-  const { signIn, user } = useAuth();
-  const { profile, hydrated } = useAccessibility();
+export default function SignUpPage() {
+  const { createAccount, user } = useAuth();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/training";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  /*
-   * THIS IS THE FIX for onboarding not appearing: previously nothing
-   * ever redirected a signed-in user to /onboarding. We wait for
-   * `hydrated` (the profile has finished loading from the database)
-   * before deciding where to send the person, so we don't accidentally
-   * send an already-onboarded user back to onboarding, or a brand new
-   * user straight past it, before we actually know their status.
-   */
-  useEffect(() => {
-    if (!user || !hydrated) return;
-    if (!profile.onboarded) {
-      router.replace("/onboarding");
-    } else {
-      router.replace(next);
-    }
-  }, [user, hydrated, profile.onboarded, next, router]);
-
   if (user) {
+    // Already signed in — a brand new account always needs onboarding.
+    router.replace("/onboarding");
     return (
       <div className="flex min-h-[40vh] items-center justify-center">
         <p className="text-xl">Redirecting…</p>
@@ -48,13 +30,13 @@ export default function SignInPage() {
     e.preventDefault();
     setError("");
     setLoading(true);
-    const result = await signIn(email, password);
+    const result = await createAccount(email, password, confirmPassword);
     setLoading(false);
     if (result.error) {
       setError(result.error);
       return;
     }
-    // The useEffect above handles where to go next once `user` updates.
+    router.push("/onboarding");
   }
 
   return (
@@ -63,24 +45,24 @@ export default function SignInPage() {
         <div className="mb-6 flex items-start gap-3">
           <div className="flex shrink-0 flex-col items-center gap-1">
             <Shield className="h-10 w-10" style={{ color: "var(--heading)" }} aria-hidden />
-            <span className="max-w-[4.5rem] text-center text-[10px] font-bold uppercase leading-tight tracking-wide" style={{ color: "var(--heading)" }}>
-              Secure sign-in
+            <span
+              className="max-w-[4.5rem] text-center text-[10px] font-bold uppercase leading-tight tracking-wide"
+              style={{ color: "var(--heading)" }}
+            >
+              Create account
             </span>
           </div>
           <h1 className="text-2xl font-bold" style={{ color: "var(--heading)" }}>
-            Sign in to The Digital Village
+            Create your account
           </h1>
         </div>
         <p className="mb-6 text-base" style={{ color: "var(--foreground)" }}>
-          Sign in to access the training. Take your time.
+          Let&apos;s set up your account first. Once it&apos;s created, you&apos;ll be signed in right away.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
-            <div
-              className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-800"
-              role="alert"
-            >
+            <div className="rounded-lg border border-red-300 bg-red-50 p-3 text-red-800" role="alert">
               {error}
             </div>
           )}
@@ -108,12 +90,33 @@ export default function SignInPage() {
             <input
               id="password"
               type="password"
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full rounded-lg border-2 px-4 py-3 text-base focus:outline-none focus:ring-2"
               style={{ borderColor: "var(--border)" }}
               placeholder="At least 6 characters"
+              disabled={loading}
+              aria-invalid={!!error}
+            />
+          </div>
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="mb-1 block text-base font-medium"
+              style={{ color: "var(--foreground)" }}
+            >
+              Confirm password
+            </label>
+            <input
+              id="confirmPassword"
+              type="password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full rounded-lg border-2 px-4 py-3 text-base focus:outline-none focus:ring-2"
+              style={{ borderColor: "var(--border)" }}
+              placeholder="Type your password again"
               disabled={loading}
               aria-invalid={!!error}
             />
@@ -125,21 +128,14 @@ export default function SignInPage() {
               className="w-full rounded-xl px-6 py-4 text-lg font-semibold border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-70"
               style={{ backgroundColor: "var(--button-bg)", color: "var(--button-text)", borderColor: "var(--border)" }}
             >
-              {loading ? "Signing in…" : "Sign in"}
+              {loading ? "Creating account…" : "Create Account"}
             </button>
             <Link
-              href="/help"
+              href="/signin"
               className="text-center text-base underline focus:outline-none focus:ring-2 rounded"
               style={{ color: "var(--link)" }}
             >
-              Forgot password?
-            </Link>
-            <Link
-              href="/signup"
-              className="text-center text-base underline focus:outline-none focus:ring-2 rounded"
-              style={{ color: "var(--link)" }}
-            >
-              Don&apos;t have an account? Create one
+              Already have an account? Sign in
             </Link>
           </div>
         </form>

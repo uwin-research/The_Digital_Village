@@ -3,6 +3,7 @@
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { ScrollHint } from "@/components/ScrollHint";
 import { Suspense } from "react";
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,6 +23,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         </ProtectedRoute>
       </Suspense>
       <Footer />
+      {/* Requirement 2.2: shows a "more content below" hint on any page that's scrollable. */}
+      <ScrollHint />
     </>
   );
 }

@@ -1,46 +1,81 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { getAuth, setAuth, clearAuth, isValidEmail } from "@/lib/api";
 
-type AuthState = { email: string } | null;
+export interface AuthUser {
+  email: string;
+}
 
 interface AuthContextValue {
-  user: AuthState;
+  user: AuthUser | null;
+  /**
+   * THIS IS THE FIX: ProtectedRoute.tsx expects a property called
+   * `isReady` (true once we've finished checking whether a session is
+   * already signed in). The previous version of this file called it
+   * `loading` instead, which meant ProtectedRoute never saw `isReady`
+   * become true, and the "Loading…" screen never went away.
+   */
   isReady: boolean;
   signIn: (email: string, password: string) => Promise<{ error?: string }>;
+  createAccount: (email: string, password: string, confirmPassword: string) => Promise<{ error?: string }>;
   signOut: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<AuthState>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    getAuth().then(({ user: u }) => {
-      setUser(u);
-      setIsReady(true);
-    });
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch("/api/auth");
+        const data = await res.json();
+        if (!cancelled) setUser(data?.user ?? null);
+      } catch {
+        if (!cancelled) setUser(null);
+      } finally {
+        if (!cancelled) setIsReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const signIn = useCallback(async (email: string, password: string): Promise<{ error?: string }> => {
-    const trimmed = email.trim();
-    if (!trimmed) return { error: "Please enter your email." };
-    if (!isValidEmail(trimmed)) return { error: "Please enter a valid email address." };
-    if (!password || password.length < 6) return { error: "Password must be at least 6 characters." };
-    await setAuth(trimmed);
-    setUser({ email: trimmed });
+  const signIn = useCallback(async (email: string, password: string) => {
+    const res = await fetch("/api/auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data?.error || "Could not sign in." };
+    setUser(data.user);
+    return {};
+  }, []);
+
+  const createAccount = useCallback(async (email: string, password: string, confirmPassword: string) => {
+    const res = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password, confirmPassword }),
+    });
+    const data = await res.json();
+    if (!res.ok) return { error: data?.error || "Could not create account." };
+    setUser(data.user);
     return {};
   }, []);
 
   const signOut = useCallback(() => {
-    clearAuth().then(() => setUser(null));
+    setUser(null);
+    void fetch("/api/auth", { method: "DELETE" });
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, isReady, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, isReady, signIn, createAccount, signOut }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,17 +1,53 @@
 @import "tailwindcss";
 
-/* High-Contrast Senior-Friendly Theme - WCAG AAA */
-:root {
+/*
+  ===========================================================================
+  THEME SYSTEM
+  Three pre-designed, pre-verified color themes. Users pick one from the
+  Profile page rather than choosing custom colors, so contrast can never
+  accidentally drop below the WCAG AAA requirement (>=7:1).
+  ===========================================================================
+*/
+:root,
+html[data-color-theme="classic"] {
   --background: #ffffff;
   --foreground: #000000;
   --heading: #000080;
   --link: #0047ab;
   --link-hover: #000080;
-  --button-bg: #000080;
-  --button-text: #ffffff;
-  --button-hover-bg: #0047ab;
+  --button-bg: #FFD700;
+  --button-text: #000000;
+  --button-hover-bg: #FFC107;
   --button-border: #000000;
   --border: #000000;
+}
+
+/* High Contrast theme: pure black/white, maximum possible contrast (21:1) */
+html[data-color-theme="highContrast"] {
+  --background: #ffffff;
+  --foreground: #000000;
+  --heading: #000000;
+  --link: #000000;
+  --link-hover: #333333;
+  --button-bg: #000000;
+  --button-text: #ffffff;
+  --button-hover-bg: #333333;
+  --button-border: #000000;
+  --border: #000000;
+}
+
+/* Soft Blue theme: gentler on the eyes, still verified >=7:1 contrast */
+html[data-color-theme="softBlue"] {
+  --background: #F5F7FA;
+  --foreground: #1B2A4A;
+  --heading: #08306B;
+  --link: #08306B;
+  --link-hover: #1B2A4A;
+  --button-bg: #08306B;
+  --button-text: #ffffff;
+  --button-hover-bg: #0B4080;
+  --button-border: #08306B;
+  --border: #1B2A4A;
 }
 
 @theme inline {
@@ -19,21 +55,31 @@
   --color-foreground: var(--foreground);
 }
 
-/* Text size - minimum 20px for senior-friendly readability */
+/*
+  ===========================================================================
+  FONT SIZE SYSTEM
+  --user-font-scale is a multiplier (0.85 to 1.4) set by JavaScript from
+  the +/- buttons on the Profile page (see AccessibilityContext.tsx).
+  It is combined with a base size that still increases on large screens,
+  so "make text bigger" and "use more of a big monitor" both work together
+  instead of one overriding the other.
+  ===========================================================================
+*/
 html {
-  font-size: 22px;
+  --user-font-scale: 1;
+  font-size: calc(22px * var(--user-font-scale));
 }
 
-html[data-text-size="small"] {
-  font-size: 20px;
+@media (min-width: 1440px) {
+  html {
+    font-size: calc(24px * var(--user-font-scale));
+  }
 }
 
-html[data-text-size="medium"] {
-  font-size: 22px;
-}
-
-html[data-text-size="large"] {
-  font-size: 24px;
+@media (min-width: 1920px) {
+  html {
+    font-size: calc(26px * var(--user-font-scale));
+  }
 }
 
 body {
@@ -44,12 +90,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Headings - Navy Blue */
+/* Headings */
 h1, h2, h3, h4, h5, h6 {
   color: var(--heading);
 }
 
-/* Links - Navy Blue, always underlined for WCAG AAA */
+/* Links - always underlined for WCAG AAA */
 a {
   color: var(--link);
   text-decoration: underline;
@@ -60,7 +106,7 @@ a:hover {
   color: var(--link-hover);
 }
 
-/* Primary buttons - large, distinct, clear hover */
+/* Primary buttons */
 .btn-primary {
   background-color: var(--button-bg);
   color: var(--button-text);
@@ -80,10 +126,31 @@ a:hover {
   background-color: var(--button-hover-bg);
 }
 
+/* Requirement 3.1: sitewide minimum touch target (radio/checkbox excluded) */
+button,
+a,
+select,
+textarea,
+input:not([type="radio"]):not([type="checkbox"]) {
+  min-height: 48px;
+}
+
 /* Focus visible for keyboard users - high contrast */
 *:focus-visible {
   outline: 3px solid var(--heading);
   outline-offset: 2px;
+}
+
+/* Requirement 1.3: respect the user's OS-level "reduce motion" setting */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Print */
@@ -116,4 +183,23 @@ video::-webkit-media-controls-current-time-display,
 video::-webkit-media-controls-time-remaining-display {
   transform: scale(1.18);
   transform-origin: center;
+}
+
+video::cue {
+  font-size: 1.1rem;
+  background-color: rgba(0, 0, 0, 0.85);
+  color: #ffffff;
+}
+
+/* Requirement 5 (Responsive): stop any element from ever causing sideways scroll */
+html,
+body {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
 }

@@ -1,15 +1,18 @@
 "use client";
 
+import { useAccessibility } from "@/context/AccessibilityContext";
 import { useProgressData } from "@/hooks/useProgressData";
 import { isModuleLessonComplete } from "@/lib/progress";
 import { MODULES } from "@/lib/modules";
-import { TRAINING_NAV_MODULES } from "@/lib/trainingNavModules";
-import { CheckCircle } from "lucide-react";
+import { getNavModulesForPlatform } from "@/lib/trainingNavModules";
+import { CheckCircle, Smartphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function TrainingPage() {
   const { progress, updatesAnswered, suspiciousAnswered } = useProgressData();
+  const { profile } = useAccessibility();
+  const navModules = getNavModulesForPlatform(profile.devicePlatform);
 
   return (
     <div className="min-h-screen">
@@ -30,11 +33,36 @@ export default function TrainingPage() {
         </picture>
       </header>
 
-      {/* Main Content */}
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      {/*
+        Requirement 5 (Responsive Design) - large screens:
+        widened the max width and added a 4-column layout at very wide
+        breakpoints (2xl, 1536px+) so the module grid uses the extra
+        room on big monitors instead of leaving large empty margins on
+        either side. Card content itself is unchanged, just how many
+        fit per row.
+      */}
+      <div className="mx-auto max-w-6xl px-4 py-8 2xl:max-w-[100rem]">
+        {/*
+          Requirement 2.2-style clarity: tell the person which phone
+          version of the training they're seeing, so switching Android/
+          iOS in their Profile doesn't feel confusing or silent.
+        */}
+        {profile.devicePlatform ? (
+          <div
+            className="mb-6 flex items-center gap-3 rounded-xl border-2 p-4"
+            style={{ borderColor: "var(--border)", backgroundColor: "var(--background)" }}
+          >
+            <Smartphone className="h-6 w-6 shrink-0" style={{ color: "var(--heading)" }} aria-hidden />
+            <p className="text-base" style={{ color: "var(--foreground)" }}>
+              Training is shown for <strong>{profile.devicePlatform === "ios" ? "iPhone (iOS)" : "Android"}</strong>{" "}
+              based on your Profile settings.
+            </p>
+          </div>
+        ) : null}
+
         {/* Module Grid */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {TRAINING_NAV_MODULES.map((mod) => {
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+          {navModules.map((mod) => {
             const moduleData = MODULES.find((m) => m.slug === mod.slug);
             const isComplete = moduleData
               ? isModuleLessonComplete(
@@ -48,9 +76,9 @@ export default function TrainingPage() {
             return (
               <article
                 key={mod.slug}
-                className="flex flex-col overflow-hidden rounded-2xl border-2 border-black bg-white shadow-lg transition-shadow hover:shadow-xl focus-within:ring-2 focus-within:ring-[#000080]"
+                className="flex flex-col overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-lg transition-shadow hover:shadow-xl focus-within:ring-2 focus-within:ring-[var(--heading)]"
               >
-                <div className="relative min-h-[100px] border-b border-black bg-white">
+                <div className="relative min-h-[100px] border-b border-[var(--border)] bg-white">
                   {mod.image ? (
                     <div className="relative aspect-[16/9] w-full">
                       <Image
@@ -58,7 +86,7 @@ export default function TrainingPage() {
                         alt=""
                         fill
                         className="object-cover object-center"
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1536px) 33vw, 25vw"
                       />
                     </div>
                   ) : (
@@ -74,17 +102,17 @@ export default function TrainingPage() {
                       <CheckCircle className="h-4 w-4 shrink-0" aria-hidden />
                     </div>
                   )}
-                  <h2 className="mb-1 text-lg font-bold text-[#000080]">
+                  <h2 className="mb-1 text-lg font-bold text-[var(--heading)]">
                     {mod.storyTitle}
                   </h2>
-                  <p className="mb-2 text-sm font-bold text-black">{mod.title}</p>
-                  <p className="mb-4 flex-1 text-base text-black">
+                  <p className="mb-2 text-sm font-bold text-[var(--foreground)]">{mod.title}</p>
+                  <p className="mb-4 flex-1 text-base text-[var(--foreground)]">
                     {mod.description}
                   </p>
                   <Link
                     href={`/training/${mod.slug}`}
-                    className="inline-flex items-center justify-center rounded-xl bg-[#FFD700] px-4 py-3 font-semibold text-black no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
-                    style={{ textDecoration: "none" }}
+                    className="inline-flex items-center justify-center rounded-xl px-4 py-3 font-semibold no-underline focus:outline-none focus:ring-2 focus:ring-offset-2"
+                    style={{ backgroundColor: "var(--button-bg)", color: "var(--button-text)", textDecoration: "none" }}
                   >
                     {mod.buttonLabel}
                   </Link>
@@ -95,8 +123,8 @@ export default function TrainingPage() {
         </div>
 
         {/* Support Note */}
-        <div className="mt-8 rounded-xl border border-black bg-white p-4">
-          <p className="text-base font-medium text-black">
+        <div className="mt-8 rounded-xl border border-[var(--border)] bg-white p-4">
+          <p className="text-base font-medium text-[var(--foreground)]">
             Before you start: If you get stuck, ask a trusted person to sit with you.
           </p>
         </div>

@@ -13,6 +13,7 @@ import {
   unmarkModuleComplete,
   isModuleLessonComplete,
 } from "@/lib/progress";
+
 import { printModule2Section3Slides } from "@/lib/printModule2Slides";
 import { RowWithContextTip, SectionHeadingWithContextTip } from "@/components/InlineContextualTip";
 import {
@@ -23,11 +24,12 @@ import {
   stripSectionNumberPrefix,
 } from "@/lib/lessonContextTips";
 import { getSectionPlainCorpus, isTipTextRedundantWithCorpus } from "@/lib/tipTextDedup";
-import { ArrowLeft, CheckCircle } from "lucide-react";
+import { ArrowLeft, CheckCircle, Smartphone } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useAccessibility } from "@/context/AccessibilityContext";
 
 const MESSAGE_A = {
   title: "Canada Post Alert",
@@ -49,7 +51,22 @@ const SUSPICIOUS_OPTIONS = [
 export default function ModulePage() {
   const params = useParams();
   const slug = params.slug as string;
+  /**
+   * THIS MATTERS FOR ANDROID MODULES: Android module slugs are the
+   * same as their iOS counterparts with "-android" appended (e.g.
+   * "first-line-of-defence-android"). A lot of layout logic below
+   * checks the EXACT slug to decide things like hero images and
+   * special section formatting. Without stripping the suffix here,
+   * every one of those checks would silently fail to match for Android
+   * modules, and they'd fall back to plain/generic layout instead of
+   * the intended rich one. baseSlug is used for all those layout
+   * comparisons; the real `slug` is still used for data lookups,
+   * progress tracking, and anchors, since those must stay unique per
+   * module.
+   */
+  const baseSlug = slug.replace(/-android$/, "");
   const moduleData = getModuleBySlug(slug);
+  const { profile } = useAccessibility();
 
   const [updatesAnswer, setUpdatesAnswerState] = useState<"yes" | "no" | null>(null);
   const [suspiciousChoice, setSuspiciousChoice] = useState<string | null>(null);
@@ -75,12 +92,12 @@ export default function ModulePage() {
     async function load() {
       const [all, updatesAns, suspiciousAns] = await Promise.all([
         getStoredProgress(),
-        slug === "software-updates" ? getUpdatesAnswer() : null,
-        slug === "scams-phishing" ? getSuspiciousAnswer() : null,
+        baseSlug === "software-updates" ? getUpdatesAnswer() : null,
+        baseSlug === "scams-phishing" ? getSuspiciousAnswer() : null,
       ]);
       if (cancelled) return;
-      if (slug === "software-updates") setUpdatesAnswerState(updatesAns);
-      if (slug === "scams-phishing") {
+      if (baseSlug === "software-updates") setUpdatesAnswerState(updatesAns);
+      if (baseSlug === "scams-phishing") {
         setSuspiciousChoice(suspiciousAns);
         setSuspiciousSubmitted(!!suspiciousAns);
       }
@@ -126,15 +143,15 @@ export default function ModulePage() {
       if (!moduleData) return;
       if (complete) {
         await markModuleComplete(moduleData);
-        if (moduleData.slug === "software-updates") setUpdatesAnswerState("yes");
-        if (moduleData.slug === "scams-phishing") {
+        if (baseSlug === "software-updates") setUpdatesAnswerState("yes");
+        if (baseSlug === "scams-phishing") {
           setSuspiciousChoice("A is suspicious");
           setSuspiciousSubmitted(true);
         }
       } else {
         await unmarkModuleComplete(moduleData);
-        if (moduleData.slug === "software-updates") setUpdatesAnswerState(null);
-        if (moduleData.slug === "scams-phishing") {
+        if (baseSlug === "software-updates") setUpdatesAnswerState(null);
+        if (baseSlug === "scams-phishing") {
           setSuspiciousChoice(null);
           setSuspiciousSubmitted(false);
         }
@@ -148,20 +165,20 @@ export default function ModulePage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-8">
         <p className="text-xl">Module not found.</p>
-        <Link href="/training" className="mt-4 inline-block text-[#0047ab] underline">
+        <Link href="/training" className="mt-4 inline-block text-[var(--link)] underline">
           Back to modules
         </Link>
       </div>
     );
   }
 
-  const isSuspicious = moduleData.slug === "scams-phishing";
-  const isUpdates = moduleData.slug === "software-updates";
-  const isGettingComfortable = moduleData.slug === "getting-comfortable";
-  const isFirstLineOfDefence = moduleData.slug === "first-line-of-defence";
-  const isPasswordsLoggingIn = moduleData.slug === "passwords-logging-in";
-  const isTwoFactorAuth = moduleData.slug === "two-factor-auth";
-  const isAppPermissions = moduleData.slug === "app-permissions";
+  const isSuspicious = baseSlug === "scams-phishing";
+  const isUpdates = baseSlug === "software-updates";
+  const isGettingComfortable = baseSlug === "getting-comfortable";
+  const isFirstLineOfDefence = baseSlug === "first-line-of-defence";
+  const isPasswordsLoggingIn = baseSlug === "passwords-logging-in";
+  const isTwoFactorAuth = baseSlug === "two-factor-auth";
+  const isAppPermissions = baseSlug === "app-permissions";
   const renderTextBlock = (text: string) => {
     const colonIndex = text.indexOf(":");
 
@@ -204,6 +221,13 @@ export default function ModulePage() {
       </>
     );
   };
+  /**
+   * Requirement 4.1 (Hearing - Multimedia Control & Alternates):
+   * videos now render an optional <track kind="captions"> when the
+   * module data provides a captionsSrc (.vtt file). Until real caption
+   * files are authored, videos fall back gracefully (no track element)
+   * rather than breaking.
+   */
   const renderMediaBlock = (slot: MediaSlot) =>
     slot.src && slot.type === "image" ? (
       <Image
@@ -218,23 +242,32 @@ export default function ModulePage() {
         <video
           controls
           preload="metadata"
-          className="w-full rounded-lg border-2 border-black bg-black"
+          className="w-full rounded-lg border-2 border-[var(--border)] bg-black"
           aria-label={slot.alt || slot.label || "Training video"}
         >
           <source src={slot.src} type="video/mp4" />
+          {slot.captionsSrc ? (
+            <track
+              kind="captions"
+              src={slot.captionsSrc}
+              srcLang="en"
+              label="English captions"
+              default
+            />
+          ) : null}
           Your browser does not support the video tag.
         </video>
-      </div>
+        </div>
     ) : (
       <div
-        className="rounded-lg border-2 border-dashed border-black bg-[#f5f5f5] p-6"
+        className="rounded-lg border-2 border-dashed border-[var(--border)] bg-[#f5f5f5] p-6"
         role="img"
         aria-label={slot.description}
       >
-        <p className="mb-2 font-semibold text-black">{slot.label || slot.type}</p>
-        <p className="mb-3 text-sm text-black">{slot.description}</p>
+        <p className="mb-2 font-semibold text-[var(--foreground)]">{slot.label || slot.type}</p>
+        <p className="mb-3 text-sm text-[var(--foreground)]">{slot.description}</p>
         {slot.slides && (
-          <ul className="space-y-2 text-sm text-black">
+          <ul className="space-y-2 text-sm text-[var(--foreground)]">
             {slot.slides.map((slide, i) => (
               <li key={i}>
                 <strong>Slide {i + 1}: {slide.title}</strong> {slide.text}
@@ -261,7 +294,7 @@ export default function ModulePage() {
     return (
       <>
         {showPathTip ? (
-          <p className="mt-4 border-t border-black/15 pt-4 text-base leading-relaxed whitespace-pre-wrap text-black">
+          <p className="mt-4 border-t border-[var(--border)]/15 pt-4 text-base leading-relaxed whitespace-pre-wrap text-[var(--foreground)]">
             {PATH_NOTATION_TIP}
           </p>
         ) : null}
@@ -276,13 +309,13 @@ export default function ModulePage() {
           return (
             <p
               key={i}
-              className="mt-4 border-t border-black/15 pt-4 text-base leading-relaxed whitespace-pre-wrap text-black"
+              className="mt-4 border-t border-[var(--border)]/15 pt-4 text-base leading-relaxed whitespace-pre-wrap text-[var(--foreground)]"
             >
               {tip}
             </p>
           );
         })}
-        {slug === "first-line-of-defence" && sectionIdx === 2
+        {baseSlug === "first-line-of-defence" && sectionIdx === 2
           ? (() => {
               const tipFromLesson = section.blocks.find(
                 (b): b is ContentBlock => b.type === "text" && b.text.startsWith("Tip:")
@@ -290,7 +323,7 @@ export default function ModulePage() {
               if (!tipFromLesson) return null;
               if (isTipTextRedundantWithCorpus(tipFromLesson.text, sectionCorpus)) return null;
               return (
-                <p className="mt-4 border-t border-black/15 pt-4 text-base leading-relaxed text-black">
+                <p className="mt-4 border-t border-[var(--border)]/15 pt-4 text-base leading-relaxed text-[var(--foreground)]">
                   {renderTextBlock(tipFromLesson.text)}
                 </p>
               );
@@ -328,7 +361,7 @@ export default function ModulePage() {
     );
   };
 
-  /** 2FA “turn on” task, App Permissions “take back a key” — intro, Path line, numbered steps, video. */
+  /** 2FA "turn on" task, App Permissions "take back a key" — intro, Path line, numbered steps, video. */
   function taskPathWithVideo(section: ModuleSection, sectionIdx: number) {
     const pathBlock = section.blocks.find(
       (block, idx): block is ContentBlock =>
@@ -351,17 +384,17 @@ export default function ModulePage() {
             sectionIdx,
             section,
             section.title,
-            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
           )}
-          <p className="text-[28px] font-bold leading-[1.6] text-black">
+          <p className="text-[1.27rem] font-bold leading-[1.6] text-[var(--foreground)]">
             {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
           </p>
           {pathBlock && (
-            <p className="text-[24px] leading-[1.7] text-black">{renderTextBlock(pathBlock.text)}</p>
+            <p className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">{renderTextBlock(pathBlock.text)}</p>
           )}
           <ol className="ml-6 list-decimal space-y-3">
             {stepBlocks.map((block, blockIdx) => (
-              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+              <li key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                 {renderTextBlock(block.text)}
               </li>
             ))}
@@ -391,12 +424,12 @@ export default function ModulePage() {
     const bodyContent = useNumberedSteps ? (
       <>
         {introText && (
-          <p className="text-[28px] font-bold leading-[1.6] text-black">{renderTextBlock(introText)}</p>
+          <p className="text-[1.27rem] font-bold leading-[1.6] text-[var(--foreground)]">{renderTextBlock(introText)}</p>
         )}
         {bodyTextBlocks.length > 0 && (
           <ol className="ml-6 list-decimal space-y-4">
             {bodyTextBlocks.map((block, blockIdx) => (
-              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+              <li key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                 {renderTextBlock(block.text)}
               </li>
             ))}
@@ -405,7 +438,7 @@ export default function ModulePage() {
       </>
     ) : (
       textBlocks.map((block, blockIdx) => (
-        <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+        <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
           {renderTextBlock(block.text)}
         </p>
       ))
@@ -418,7 +451,7 @@ export default function ModulePage() {
             sectionIdx,
             section,
             section.title,
-            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
           )}
           {bodyContent}
         </div>
@@ -432,7 +465,7 @@ export default function ModulePage() {
             sectionIdx,
             section,
             section.title,
-            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
           )}
           {bodyContent}
         </div>
@@ -463,22 +496,22 @@ export default function ModulePage() {
             sectionIdx,
             section,
             section.title,
-            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
           )}
           {introText && (
-            <p className="text-[28px] font-bold leading-[1.6] text-black">
+            <p className="text-[1.27rem] font-bold leading-[1.6] text-[var(--foreground)]">
               {introText}
             </p>
           )}
           {pathBlocks.map((block, blockIdx) => (
-            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+            <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
               {renderTextBlock(block.text)}
             </p>
           ))}
           {stepBlocks.length > 0 && (
             <ol className="ml-6 list-decimal space-y-4">
               {stepBlocks.map((block, blockIdx) => (
-                <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                <li key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                   {renderTextBlock(block.text)}
                 </li>
               ))}
@@ -502,28 +535,81 @@ export default function ModulePage() {
     isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth || isAppPermissions;
   const useLargeSectionText =
     isGettingComfortable || isFirstLineOfDefence || isPasswordsLoggingIn || isTwoFactorAuth || isAppPermissions;
-  const pageWidthClass = isFirstLineOfDefence ? "max-w-7xl" : showWideLayout ? "max-w-5xl" : "max-w-3xl";
+  const pageWidthClass = isFirstLineOfDefence
+    ? "max-w-6xl 2xl:max-w-7xl"
+    : showWideLayout
+      ? "max-w-5xl 2xl:max-w-6xl"
+      : "max-w-3xl 2xl:max-w-4xl";
 
   return (
-    <div className={`module-page-root mx-auto px-4 py-8 ${pageWidthClass}`}>
+    /*
+     * THIS IS THE FIX for lesson pages going edge-to-edge on wide
+     * screens: the max-width values above were reduced (one module was
+     * effectively unconstrained at max-w-[100rem]), AND the horizontal
+     * padding now grows with the screen (px-4 on phones, up to px-10 on
+     * large monitors), so there's always guaranteed breathing room on
+     * both sides no matter how wide the screen or how small Display
+     * Size is set.
+     */
+    <div className={`module-page-root mx-auto px-4 py-8 sm:px-6 lg:px-10 ${pageWidthClass}`}>
       <Link
         href="/training"
-        className="mb-6 inline-flex items-center gap-2 text-base font-medium text-black hover:text-[#000080] focus:outline-none focus:ring-2 focus:ring-[#000080] rounded"
+        className="mb-6 inline-flex items-center gap-2 text-base font-medium text-[var(--foreground)] hover:text-[var(--heading)] focus:outline-none focus:ring-2 focus:ring-[var(--heading)] rounded"
       >
         <ArrowLeft className="h-5 w-5 shrink-0" aria-hidden /> Back to modules
       </Link>
 
-      <h1 className={`mb-2 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-3xl"}`}>
+      {profile.devicePlatform ? (
+        <div
+          className="mb-6 flex items-center gap-3 rounded-xl border-2 p-4"
+          style={{ borderColor: "var(--border)", backgroundColor: "var(--background)" }}
+        >
+          <Smartphone className="h-6 w-6 shrink-0" style={{ color: "var(--heading)" }} aria-hidden />
+          <p className="text-base" style={{ color: "var(--foreground)" }}>
+            These steps are shown for <strong>{profile.devicePlatform === "ios" ? "iPhone (iOS)" : "Android"}</strong>{" "}
+            based on your Profile settings.
+          </p>
+        </div>
+      ) : null}
+
+      <h1 className={`mb-2 font-bold text-[var(--heading)] ${showWideLayout ? "text-[1.45rem] leading-tight" : "text-3xl"}`}>
         {MODULE_HEADING_LABEL[slug] ?? moduleData.title}
       </h1>
       {moduleData.scenario && (
-        <p className={`mb-6 rounded-lg border-2 border-black bg-white p-4 italic text-black ${showWideLayout ? "text-[24px] leading-[1.7]" : "text-base"}`}>
+        <p className={`mb-6 rounded-lg border-2 border-[var(--border)] bg-white p-4 italic text-[var(--foreground)] ${showWideLayout ? "text-[1.09rem] leading-[1.7]" : "text-base"}`}>
           {moduleData.scenario}
         </p>
       )}
 
+      {/*
+        Requirement 2.2 (Cognition - Current Position Trace): a lesson
+        overview / jump-list so the learner can see the whole shape of
+        this lesson up front and always tell how far through it they
+        are, instead of only discovering sections by scrolling.
+      */}
+      {moduleData.sections && moduleData.sections.length > 1 && (
+        <nav aria-label="Sections in this lesson" className="mb-8 rounded-xl border-2 border-[var(--border)] bg-white p-4">
+          <p className="mb-2 text-base font-bold text-[var(--heading)]">
+            This lesson has {moduleData.sections.length} sections:
+          </p>
+          <ol className="ml-5 list-decimal space-y-1">
+            {moduleData.sections.map((section, idx) => (
+              <li key={idx}>
+                <button
+                  type="button"
+                  onClick={() => scrollToLessonSection(idx)}
+                  className="rounded text-left text-base text-[var(--link)] underline hover:text-[var(--heading)] focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--heading)]"
+                >
+                  {stripSectionNumberPrefix(section.title)}
+                </button>
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )}
+
       {isFirstLineOfDefence && (
-        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-2-hero">
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-sm" aria-labelledby="module-2-hero">
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/elena-security.png"
@@ -534,7 +620,7 @@ export default function ModulePage() {
             />
           </div>
           <div className="p-6">
-            <h2 id="module-2-hero" className="text-[32px] font-bold text-[#000080]">
+            <h2 id="module-2-hero" className="text-[1.45rem] font-bold text-[var(--heading)]">
               Securing Your Digital Front Door
             </h2>
           </div>
@@ -542,7 +628,7 @@ export default function ModulePage() {
       )}
 
       {isGettingComfortable && (
-        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-1-hero">
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-sm" aria-labelledby="module-1-hero">
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/arthur-accessibility.png"
@@ -553,7 +639,7 @@ export default function ModulePage() {
             />
           </div>
           <div className="p-6">
-            <h2 id="module-1-hero" className="text-[32px] font-bold text-[#000080]">
+            <h2 id="module-1-hero" className="text-[1.45rem] font-bold text-[var(--heading)]">
               Making the Screen Work for You
             </h2>
           </div>
@@ -561,7 +647,7 @@ export default function ModulePage() {
       )}
 
       {isPasswordsLoggingIn && (
-        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-3-hero">
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-sm" aria-labelledby="module-3-hero">
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/sam-passwords.png"
@@ -572,10 +658,10 @@ export default function ModulePage() {
             />
           </div>
           <div className="p-6">
-            <h2 id="module-3-hero" className="text-[32px] font-bold text-[#000080]">
+            <h2 id="module-3-hero" className="text-[1.45rem] font-bold text-[var(--heading)]">
               The Master Keys to Your Digital Life
             </h2>
-            <p className="mt-3 text-[24px] leading-[1.7] text-black">
+            <p className="mt-3 text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
               The goal: teach Sam how to create strong passwords that are easy to remember, and introduce him to a digital notebook that does the heavy lifting.
             </p>
           </div>
@@ -583,7 +669,7 @@ export default function ModulePage() {
       )}
 
       {isTwoFactorAuth && (
-        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-4-hero">
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-sm" aria-labelledby="module-4-hero">
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/two-factor-auth.png"
@@ -594,10 +680,10 @@ export default function ModulePage() {
             />
           </div>
           <div className="p-6">
-            <h2 id="module-4-hero" className="text-[32px] font-bold text-[#000080]">
+            <h2 id="module-4-hero" className="text-[1.45rem] font-bold text-[var(--heading)]">
               The Second Lock for Your Digital Door
             </h2>
-            <p className="mt-3 text-[24px] leading-[1.7] text-black">
+            <p className="mt-3 text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
               The goal: help Sam understand that a password alone is not enough, and show him how a one-time code on his phone blocks strangers from getting in.
             </p>
           </div>
@@ -605,7 +691,7 @@ export default function ModulePage() {
       )}
 
       {isAppPermissions && (
-        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-black bg-white shadow-sm" aria-labelledby="module-app-permissions-hero">
+        <section className="mb-8 overflow-hidden rounded-2xl border-2 border-[var(--border)] bg-white shadow-sm" aria-labelledby="module-app-permissions-hero">
           <div className="relative aspect-[16/7] w-full bg-[#f5f5f5]">
             <Image
               src="/module-4-elena-permissions.png"
@@ -616,10 +702,10 @@ export default function ModulePage() {
             />
           </div>
           <div className="p-6">
-            <h2 id="module-app-permissions-hero" className="text-[32px] font-bold text-[#000080]">
+            <h2 id="module-app-permissions-hero" className="text-[1.45rem] font-bold text-[var(--heading)]">
               Setting Boundaries for Your Digital Guests
             </h2>
-            <p className="mt-3 text-[24px] leading-[1.7] text-black">
+            <p className="mt-3 text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
               The goal: learn which permissions apps may ask for, when to say no, and how to take back access from Settings.
             </p>
           </div>
@@ -627,20 +713,20 @@ export default function ModulePage() {
       )}
 
       {moduleData.reassurance && (
-        <div className="mb-6 rounded-xl border-2 border-black bg-white p-4" role="note">
-          <p className="text-base text-black">{moduleData.reassurance}</p>
+        <div className="mb-6 rounded-xl border-2 border-[var(--border)] bg-white p-4" role="note">
+          <p className="text-base text-[var(--foreground)]">{moduleData.reassurance}</p>
         </div>
       )}
 
       {moduleData.examples && (
-        <div className="mb-6 rounded-xl border-2 border-black bg-white p-4">
-          <p className="text-base text-black">{moduleData.examples}</p>
+        <div className="mb-6 rounded-xl border-2 border-[var(--border)] bg-white p-4">
+          <p className="text-base text-[var(--foreground)]">{moduleData.examples}</p>
         </div>
       )}
 
       {moduleData.safetyCallout && (
-        <div className="mb-6 rounded-xl border-2 border-black bg-white p-4" role="note">
-          <p className="text-base text-black">{moduleData.safetyCallout}</p>
+        <div className="mb-6 rounded-xl border-2 border-[var(--border)] bg-white p-4" role="note">
+          <p className="text-base text-[var(--foreground)]">{moduleData.safetyCallout}</p>
         </div>
       )}
 
@@ -650,7 +736,7 @@ export default function ModulePage() {
             <section
               key={sectionIdx}
               id={`lesson-sec-${sectionIdx}`}
-              className="scroll-mt-28 rounded-xl border-2 border-black bg-white p-6 shadow-sm"
+              className="scroll-mt-28 rounded-xl border-2 border-[var(--border)] bg-white p-6 shadow-sm"
             >
               {!(isFirstLineOfDefence && [0, 2, 3, 4].includes(sectionIdx)) &&
                 !isTwoFactorAuth &&
@@ -659,7 +745,7 @@ export default function ModulePage() {
                   sectionIdx,
                   section,
                   section.title,
-                  `mb-0 font-bold text-[#000080] ${showWideLayout ? "text-[32px] leading-tight" : "text-xl"}`
+                  `mb-0 font-bold text-[var(--heading)] ${showWideLayout ? "text-[1.45rem] leading-tight" : "text-xl"}`
                 )}
               <div className="space-y-6">
                 {isFirstLineOfDefence && sectionIdx === 0 ? (
@@ -674,10 +760,10 @@ export default function ModulePage() {
                             sectionIdx,
                             section,
                             section.title,
-                            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+                            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
                           )}
                           {textBlocks.map((block, blockIdx) => (
-                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                               {renderTextBlock(block.text)}
                             </p>
                           ))}
@@ -694,7 +780,7 @@ export default function ModulePage() {
                   })()
                 ) : isFirstLineOfDefence && sectionIdx === 1 ? (
                   <>
-                    <p className="text-[24px] leading-[1.7] text-black">
+                    <p className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                       Different locks offer different levels of security and convenience. Here are four common types—each
                       with a simple house analogy so it is easy to picture. Tap{" "}
                       <span className="font-semibold">PIN</span>, <span className="font-semibold">Pattern</span>, or{" "}
@@ -702,13 +788,13 @@ export default function ModulePage() {
                       tap <span className="font-semibold">Biometrics</span> for the Face ID / fingerprint lesson (Section
                       4).
                     </p>
-                    <div className="overflow-x-auto rounded-xl border-2 border-black">
-                      <table className="min-w-full border-collapse text-left text-[24px] text-black">
+                    <div className="overflow-x-auto rounded-xl border-2 border-[var(--border)]">
+                      <table className="min-w-full border-collapse text-left text-[1.09rem] text-[var(--foreground)]">
                         <thead className="bg-[#cfcfcf]">
                           <tr>
-                            <th className="border-b-2 border-black px-4 py-4 font-bold">Lock Type</th>
-                            <th className="border-b-2 border-black px-4 py-4 font-bold">What is it?</th>
-                            <th className="border-b-2 border-black px-4 py-4 font-bold">The House Analogy</th>
+                            <th className="border-b-2 border-[var(--border)] px-4 py-4 font-bold">Lock Type</th>
+                            <th className="border-b-2 border-[var(--border)] px-4 py-4 font-bold">What is it?</th>
+                            <th className="border-b-2 border-[var(--border)] px-4 py-4 font-bold">The House Analogy</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -716,7 +802,7 @@ export default function ModulePage() {
                             tabIndex={0}
                             role="link"
                             aria-label="Go to Section 3: passcode setup"
-                            className="cursor-pointer bg-white transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#000080]"
+                            className="cursor-pointer bg-white transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--heading)]"
                             onClick={() => scrollToLessonSection(2)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
@@ -725,15 +811,15 @@ export default function ModulePage() {
                               }
                             }}
                           >
-                            <td className="border-t-2 border-black px-4 py-4 font-semibold text-[#000080]">PIN</td>
-                            <td className="border-t-2 border-black px-4 py-4">A short sequence of numbers.</td>
-                            <td className="border-t-2 border-black px-4 py-4">Like a keypad code on your front door.</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4 font-semibold text-[var(--heading)]">PIN</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">A short sequence of numbers.</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">Like a keypad code on your front door.</td>
                           </tr>
                           <tr
                             tabIndex={0}
                             role="link"
                             aria-label="Go to Section 3: passcode setup"
-                            className="cursor-pointer bg-[#d9d9d9] transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#000080]"
+                            className="cursor-pointer bg-[#d9d9d9] transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--heading)]"
                             onClick={() => scrollToLessonSection(2)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
@@ -742,9 +828,9 @@ export default function ModulePage() {
                               }
                             }}
                           >
-                            <td className="border-t-2 border-black px-4 py-4 font-semibold text-[#000080]">Pattern</td>
-                            <td className="border-t-2 border-black px-4 py-4">A shape you draw on a grid of dots.</td>
-                            <td className="border-t-2 border-black px-4 py-4">
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4 font-semibold text-[var(--heading)]">Pattern</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">A shape you draw on a grid of dots.</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">
                               Like a secret &quot;knock&quot; or a specific way you turn a handle.
                             </td>
                           </tr>
@@ -752,7 +838,7 @@ export default function ModulePage() {
                             tabIndex={0}
                             role="link"
                             aria-label="Go to Section 3: passcode setup"
-                            className="cursor-pointer bg-white transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#000080]"
+                            className="cursor-pointer bg-white transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--heading)]"
                             onClick={() => scrollToLessonSection(2)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
@@ -761,9 +847,9 @@ export default function ModulePage() {
                               }
                             }}
                           >
-                            <td className="border-t-2 border-black px-4 py-4 font-semibold text-[#000080]">Password</td>
-                            <td className="border-t-2 border-black px-4 py-4">A mix of letters, numbers, and symbols.</td>
-                            <td className="border-t-2 border-black px-4 py-4">
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4 font-semibold text-[var(--heading)]">Password</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">A mix of letters, numbers, and symbols.</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">
                               A long, complex physical key that is hard to copy.
                             </td>
                           </tr>
@@ -771,7 +857,7 @@ export default function ModulePage() {
                             tabIndex={0}
                             role="link"
                             aria-label="Go to Section 4: biometrics setup"
-                            className="cursor-pointer bg-[#d9d9d9] transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#000080]"
+                            className="cursor-pointer bg-[#d9d9d9] transition-colors hover:bg-[#e8eeff] focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[var(--heading)]"
                             onClick={() => scrollToLessonSection(3)}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
@@ -780,9 +866,9 @@ export default function ModulePage() {
                               }
                             }}
                           >
-                            <td className="border-t-2 border-black px-4 py-4 font-semibold text-[#000080]">Biometrics</td>
-                            <td className="border-t-2 border-black px-4 py-4">Using your fingerprint or face to unlock.</td>
-                            <td className="border-t-2 border-black px-4 py-4">
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4 font-semibold text-[var(--heading)]">Biometrics</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">Using your fingerprint or face to unlock.</td>
+                            <td className="border-t-2 border-[var(--border)] px-4 py-4">
                               Like a high-tech lock that opens only when it &quot;sees&quot; you or feels your touch.
                             </td>
                           </tr>
@@ -817,17 +903,17 @@ export default function ModulePage() {
                             sectionIdx,
                             section,
                             section.title,
-                            "mb-0 font-bold text-[#000080] text-[32px] leading-tight"
+                            "mb-0 font-bold text-[var(--heading)] text-[1.45rem] leading-tight"
                           )}
-                          <p className="text-[28px] font-bold leading-[1.6] text-black">
+                          <p className="text-[1.27rem] font-bold leading-[1.6] text-[var(--foreground)]">
                             {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
                           </p>
                           {pathBlock && (
-                            <p className="text-[24px] leading-[1.7] text-black">{renderTextBlock(pathBlock.text)}</p>
+                            <p className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">{renderTextBlock(pathBlock.text)}</p>
                           )}
                           <ol className="ml-6 list-decimal space-y-3">
                             {stepBlocks.map((block, blockIdx) => (
-                              <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                              <li key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                                 {renderTextBlock(block.text)}
                               </li>
                             ))}
@@ -835,7 +921,7 @@ export default function ModulePage() {
                           <button
                             type="button"
                             onClick={handlePrintSection3Slides}
-                            className="min-h-12 rounded-xl border-2 border-black bg-white px-4 py-2 text-lg font-bold text-black transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2"
+                            className="min-h-12 rounded-xl border-2 border-[var(--border)] bg-white px-4 py-2 text-lg font-bold text-[var(--foreground)] transition hover:bg-[#eaeaea] focus:outline-none focus:ring-2 focus:ring-[var(--heading)] focus:ring-offset-2"
                           >
                             PRINT SLIDES
                           </button>
@@ -867,7 +953,7 @@ export default function ModulePage() {
                       <div className={mediaBlocks.length > 0 ? "grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px] xl:items-start" : "space-y-4"}>
                         <div className="space-y-4">
                           {textBlocks.map((block, blockIdx) => (
-                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                               {renderTextBlock(block.text)}
                             </p>
                           ))}
@@ -891,7 +977,7 @@ export default function ModulePage() {
                       <div className="grid gap-8 xl:grid-cols-[minmax(0,1.2fr)_420px] xl:items-start">
                         <div className="space-y-4">
                           {textBlocks.map((block, blockIdx) => (
-                            <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                            <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                               {renderTextBlock(block.text)}
                             </p>
                           ))}
@@ -906,13 +992,13 @@ export default function ModulePage() {
                   })()
                 ) : isPasswordsLoggingIn && sectionIdx === 4 ? (
                   <>
-                    <p className="text-[28px] font-bold leading-[1.6] text-black">
+                    <p className="text-[1.27rem] font-bold leading-[1.6] text-[var(--foreground)]">
                       {section.blocks[0]?.type === "text" ? section.blocks[0].text : ""}
                     </p>
                     <ol className="ml-6 list-decimal space-y-4">
                       {section.blocks.slice(1).map((block, blockIdx) =>
                         block.type === "text" ? (
-                          <li key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                          <li key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                             {renderTextBlock(block.text)}
                           </li>
                         ) : (
@@ -940,7 +1026,7 @@ export default function ModulePage() {
 
                           if (block.type === "text") {
                             return (
-                              <p key={blockIdx} className="text-[24px] leading-[1.7] text-black">
+                              <p key={blockIdx} className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">
                                 {renderTextBlock(block.text)}
                               </p>
                             );
@@ -949,9 +1035,9 @@ export default function ModulePage() {
                           return <div key={blockIdx}>{renderMediaBlock(block.slot)}</div>;
                         })}
                         {autofillBlock && (
-                          <div className="rounded-xl border-2 border-black bg-[#f5f5f5] p-6" role="note">
-                            <p className="mb-2 text-[24px] font-bold text-[#000080]">Definition Box</p>
-                            <p className="text-[24px] leading-[1.7] text-black">{renderTextBlock(autofillBlock.text)}</p>
+                          <div className="rounded-xl border-2 border-[var(--border)] bg-[#f5f5f5] p-6" role="note">
+                            <p className="mb-2 text-[1.09rem] font-bold text-[var(--heading)]">Definition Box</p>
+                            <p className="text-[1.09rem] leading-[1.7] text-[var(--foreground)]">{renderTextBlock(autofillBlock.text)}</p>
                           </div>
                         )}
                       </>
@@ -963,7 +1049,7 @@ export default function ModulePage() {
                       <p
                         key={blockIdx}
                         className={
-                          useLargeSectionText ? "text-[24px] leading-[1.7] text-black" : "text-base leading-relaxed text-black"
+                          useLargeSectionText ? "text-[1.09rem] leading-[1.7] text-[var(--foreground)]" : "text-base leading-relaxed text-[var(--foreground)]"
                         }
                       >
                         {renderTextBlock(block.text)}
@@ -986,18 +1072,18 @@ export default function ModulePage() {
               openTipId={openContextTipId}
               setOpenTipId={setOpenContextTipId}
               contextLabel="Help for all steps in this lesson"
-              showSettingsFinder={slug === "software-updates"}
+              showSettingsFinder={baseSlug === "software-updates"}
               panelBody={
-                <div className="space-y-4 text-base leading-relaxed text-black">
+                <div className="space-y-4 text-base leading-relaxed text-[var(--foreground)]">
                   {moduleData.steps.map((step, idx) => (
                     <div key={step.id}>
-                      <p className="font-semibold text-[#000080]">Step {idx + 1}</p>
+                      <p className="font-semibold text-[var(--heading)]">Step {idx + 1}</p>
                       <p className="whitespace-pre-wrap">{getStepOrActivityTip(slug, idx)}</p>
                     </div>
                   ))}
-                  {slug === "software-updates" && moduleData.afterCheckQuestion ? (
-                    <div className="border-t border-black/20 pt-4">
-                      <p className="font-semibold text-[#000080]">Check-in</p>
+                  {baseSlug === "software-updates" && moduleData.afterCheckQuestion ? (
+                    <div className="border-t border-[var(--border)]/20 pt-4">
+                      <p className="font-semibold text-[var(--heading)]">Check-in</p>
                       <p className="mb-2">{moduleData.afterCheckQuestion}</p>
                       <p className="whitespace-pre-wrap">{getStepOrActivityTip(slug, 4)}</p>
                     </div>
@@ -1005,9 +1091,9 @@ export default function ModulePage() {
                 </div>
               }
             >
-              <p className="text-lg font-semibold text-[#000080]">Help for this lesson&apos;s steps</p>
+              <p className="text-lg font-semibold text-[var(--heading)]">Help for this lesson&apos;s steps</p>
             </RowWithContextTip>
-            <ol className="mt-4 ml-6 list-decimal space-y-4 text-black">
+            <ol className="mt-4 ml-6 list-decimal space-y-4 text-[var(--foreground)]">
               {moduleData.steps.map((step, idx) => (
                 <li key={step.id} className="text-base">
                   <span className="font-semibold">Step {idx + 1}:</span> {step.text}
@@ -1020,14 +1106,14 @@ export default function ModulePage() {
 
       {isUpdates && (
         <>
-          <div className="mb-6 rounded-xl border-2 border-black bg-white p-4">
-            <p className="mb-2 font-medium text-black">{moduleData.afterCheckQuestion}</p>
+          <div className="mb-6 rounded-xl border-2 border-[var(--border)] bg-white p-4">
+            <p className="mb-2 font-medium text-[var(--foreground)]">{moduleData.afterCheckQuestion}</p>
             <div className="flex gap-3">
               <button
                 type="button"
                 onClick={() => handleUpdatesAnswer("yes")}
-                className={`rounded-lg px-5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-[#000080] ${
-                  updatesAnswer === "yes" ? "bg-[#000080] text-white border-2 border-black" : "bg-[#e0e0e0] text-black border-2 border-black hover:bg-[#d0d0d0]"
+                className={`rounded-lg px-5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-[var(--heading)] ${
+                  updatesAnswer === "yes" ? "bg-[var(--heading)] text-white border-2 border-[var(--border)]" : "bg-[#e0e0e0] text-[var(--foreground)] border-2 border-[var(--border)] hover:bg-[#d0d0d0]"
                 }`}
               >
                 Yes
@@ -1035,8 +1121,8 @@ export default function ModulePage() {
               <button
                 type="button"
                 onClick={() => handleUpdatesAnswer("no")}
-                className={`rounded-lg px-5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-[#000080] ${
-                  updatesAnswer === "no" ? "bg-[#000080] text-white border-2 border-black" : "bg-[#e0e0e0] text-black border-2 border-black hover:bg-[#d0d0d0]"
+                className={`rounded-lg px-5 py-3 font-medium focus:outline-none focus:ring-2 focus:ring-[var(--heading)] ${
+                  updatesAnswer === "no" ? "bg-[var(--heading)] text-white border-2 border-[var(--border)]" : "bg-[#e0e0e0] text-[var(--foreground)] border-2 border-[var(--border)] hover:bg-[#d0d0d0]"
                 }`}
               >
                 No
@@ -1047,7 +1133,7 @@ export default function ModulePage() {
             <p className="mb-6 text-base font-medium text-green-800">Nice work—updates fix security problems.</p>
           )}
           {updatesAnswer === "no" && (
-            <p className="mb-6 text-base text-black">No problem—try again later when you&apos;re on Wi-Fi and charging.</p>
+            <p className="mb-6 text-base text-[var(--foreground)]">No problem—try again later when you&apos;re on Wi-Fi and charging.</p>
           )}
         </>
       )}
@@ -1060,42 +1146,42 @@ export default function ModulePage() {
             setOpenTipId={setOpenContextTipId}
             contextLabel="Help for this scam-spotting lesson"
             panelBody={
-              <div className="space-y-4 text-base leading-relaxed text-black">
+              <div className="space-y-4 text-base leading-relaxed text-[var(--foreground)]">
                 <p className="whitespace-pre-wrap">{getStepOrActivityTip(slug, 0)}</p>
-                <p className="whitespace-pre-wrap border-t border-black/15 pt-4">{getStepOrActivityTip(slug, 2)}</p>
+                <p className="whitespace-pre-wrap border-t border-[var(--border)]/15 pt-4">{getStepOrActivityTip(slug, 2)}</p>
               </div>
             }
           >
-            <p className="text-base text-black sm:text-lg">
+            <p className="text-base text-[var(--foreground)] sm:text-lg">
               Read these two messages. Which one is suspicious?
             </p>
           </RowWithContextTip>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-xl border-2 border-black bg-white p-4 shadow-sm">
-              <p className="mb-2 font-bold text-[#000080]">Message A</p>
-              <p className="whitespace-pre-line text-base text-black">{MESSAGE_A.title}</p>
-              <p className="whitespace-pre-line text-base text-black">{MESSAGE_A.body}</p>
+            <div className="rounded-xl border-2 border-[var(--border)] bg-white p-4 shadow-sm">
+              <p className="mb-2 font-bold text-[var(--heading)]">Message A</p>
+              <p className="whitespace-pre-line text-base text-[var(--foreground)]">{MESSAGE_A.title}</p>
+              <p className="whitespace-pre-line text-base text-[var(--foreground)]">{MESSAGE_A.body}</p>
             </div>
-            <div className="rounded-xl border-2 border-black bg-white p-4 shadow-sm">
-              <p className="mb-2 font-bold text-[#000080]">Message B</p>
-              <p className="whitespace-pre-line text-base text-black">{MESSAGE_B.title}</p>
-              <p className="whitespace-pre-line text-base text-black">{MESSAGE_B.body}</p>
+            <div className="rounded-xl border-2 border-[var(--border)] bg-white p-4 shadow-sm">
+              <p className="mb-2 font-bold text-[var(--heading)]">Message B</p>
+              <p className="whitespace-pre-line text-base text-[var(--foreground)]">{MESSAGE_B.title}</p>
+              <p className="whitespace-pre-line text-base text-[var(--foreground)]">{MESSAGE_B.body}</p>
             </div>
           </div>
 
           {!suspiciousSubmitted ? (
-            <div className="rounded-xl border-2 border-black bg-white p-4">
-              <p className="mb-3 font-medium text-black">Which message is suspicious?</p>
+            <div className="rounded-xl border-2 border-[var(--border)] bg-white p-4">
+              <p className="mb-3 font-medium text-[var(--foreground)]">Which message is suspicious?</p>
               <div className="flex flex-col gap-2">
                 {SUSPICIOUS_OPTIONS.map((opt) => (
-                  <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-black bg-white px-4 py-3 hover:bg-[#e8e8e8]">
+                  <label key={opt} className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-[var(--border)] bg-white px-4 py-3 hover:bg-[#e8e8e8]">
                     <input
                       type="radio"
                       name="suspicious"
                       value={opt}
                       checked={suspiciousChoice === opt}
                       onChange={() => setSuspiciousChoice(opt)}
-                      className="h-5 w-5 accent-[#000080]"
+                      className="h-5 w-5 accent-[var(--heading)]"
                     />
                     <span className="text-base">{opt}</span>
                   </label>
@@ -1105,21 +1191,21 @@ export default function ModulePage() {
                 type="button"
                 onClick={() => suspiciousChoice && handleSuspiciousSubmit(suspiciousChoice)}
                 disabled={!suspiciousChoice}
-                className="mt-4 rounded-lg border-2 border-black bg-[#000080] px-5 py-3 font-medium text-white hover:bg-[#0047ab] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[#000080]"
+                className="mt-4 rounded-lg border-2 border-[var(--border)] bg-[var(--heading)] px-5 py-3 font-medium text-white hover:bg-[var(--link)] disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-[var(--heading)]"
               >
                 Submit
               </button>
             </div>
           ) : (
-            <div className="rounded-xl border-2 border-black bg-white p-6">
-              <p className="mb-2 font-bold text-[#000080]">Why message A is suspicious</p>
-              <ul className="mb-4 list-inside list-disc space-y-1 text-base text-black">
+            <div className="rounded-xl border-2 border-[var(--border)] bg-white p-6">
+              <p className="mb-2 font-bold text-[var(--heading)]">Why message A is suspicious</p>
+              <ul className="mb-4 list-inside list-disc space-y-1 text-base text-[var(--foreground)]">
                 <li>Urgency or time limit (e.g. &quot;within 24 hours&quot;)</li>
                 <li>Link to &quot;update details&quot;—could steal your information</li>
                 <li>Generic wording; real services often use your name and real reference numbers</li>
               </ul>
-              <p className="mb-2 font-bold text-[#000080]">Safe action steps</p>
-              <ul className="list-inside list-disc space-y-1 text-base text-black">
+              <p className="mb-2 font-bold text-[var(--heading)]">Safe action steps</p>
+              <ul className="list-inside list-disc space-y-1 text-base text-[var(--foreground)]">
                 <li>Don&apos;t click links.</li>
                 <li>Verify using official sources (official website or phone number you already trust).</li>
                 <li>Report as spam/phishing.</li>
@@ -1130,15 +1216,15 @@ export default function ModulePage() {
         </div>
       )}
 
-      <div className="mb-6 rounded-xl border-2 border-black bg-white p-4" role="note">
-        <p className="text-base text-black">Take your time.</p>
+      <div className="mb-6 rounded-xl border-2 border-[var(--border)] bg-white p-4" role="note">
+        <p className="text-base text-[var(--foreground)]">Take your time.</p>
       </div>
 
       <div className="mb-6 flex flex-wrap items-start gap-3">
         <Link
           href="/training"
-          className="rounded-lg bg-[#FFD700] px-5 py-3 font-medium text-black no-underline hover:bg-[#FFC107] focus:outline-none focus:ring-2 focus:ring-[#000080]"
-          style={{ textDecoration: "none" }}
+          className="rounded-lg px-5 py-3 font-medium no-underline focus:outline-none focus:ring-2"
+          style={{ backgroundColor: "var(--button-bg)", color: "var(--button-text)", textDecoration: "none" }}
         >
           Back to modules
         </Link>
@@ -1147,19 +1233,19 @@ export default function ModulePage() {
             type="button"
             aria-pressed={markedComplete}
             onClick={() => handleMarkComplete(!markedComplete)}
-            className={`inline-flex items-center gap-2 rounded-xl px-6 py-4 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[#000080] focus:ring-offset-2 ${
+            className={`inline-flex items-center gap-2 rounded-xl px-6 py-4 text-lg font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--heading)] focus:ring-offset-2 ${
               markedComplete
                 ? "bg-green-600 text-white hover:bg-green-700"
-                : "bg-[#e8e8e8] text-black hover:bg-[#d0d0d0]"
+                : "bg-[#e8e8e8] text-[var(--foreground)] hover:bg-[#d0d0d0]"
             }`}
           >
             <span>{markedComplete ? "Completed" : "Mark as complete"}</span>
             <CheckCircle className="h-6 w-6 shrink-0" aria-hidden />
           </button>
           {markedComplete ? (
-            <p className="max-w-[min(100%,20rem)] text-right text-base text-black">Your progress has been saved.</p>
+            <p className="max-w-[min(100%,20rem)] text-right text-base text-[var(--foreground)]">Your progress has been saved.</p>
           ) : (
-            <p className="max-w-[min(100%,20rem)] text-right text-sm text-black">
+            <p className="max-w-[min(100%,20rem)] text-right text-sm text-[var(--foreground)]">
               Click when you&apos;re done to track your progress.
             </p>
           )}
